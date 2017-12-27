@@ -1,0 +1,4 @@
+package com.scrawlsoft.picslider.feedly
+
+val DEV_USER = "cceea348-110d-4606-92d0-8480ea8c8b10"
+val DEV_TOKEN = "Ay_DjsKr3hvAlo8Iki1JLIim01bIgQAFmV_Mhc25FXX2anbywwMe03dv1tF6160_Ouajc-1yHH4GZH5QZ_IRhq-h2aM0gAucae3K-mPXNXv_YzlNDTalg52DiOgnO3jvBtFlhvM1ix52GZ-n2X4qPGiqbC0RuwuiMx7wbaD338rdIWfPrAP8jXD30BUG6pALcnkw-86UlLnutPvq2YO4DBrZTm3DlnrjbdFV7qqaFdxOSeCxwmhzJrzoGZ7Xdg:feedlydev"

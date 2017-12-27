@@ -1,6 +1,7 @@
 package com.scrawlsoft.picslider.feedly
 
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.flatMap
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -13,7 +14,8 @@ import retrofit2.http.*
  *
  * All calls are synchronous.
  */
-class FeedlyFetcher(private val userId: String, private val token: String) {
+class FeedlyFetcher(@Suppress("unused") private val userId: String,
+                    @Suppress("unused") private val token: String) {
 
     data class FeedlyCategory(val id: String, val label: String, val description: String?)
     data class FeedlyEntryIdsResponse(val ids: List<String>, val continuation: String?)
@@ -33,7 +35,7 @@ class FeedlyFetcher(private val userId: String, private val token: String) {
 
     init {
         val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(baseUrl)
                 .addConverterFactory(MoshiConverterFactory.create())
                 .build()
         service = retrofit.create(FeedlyApi::class.java)
@@ -63,11 +65,17 @@ class FeedlyFetcher(private val userId: String, private val token: String) {
 
     fun fetchEntriesForIds(entryIds: List<String>): Result<List<FeedlyEntry>, Exception> {
         val resp = service.entriesForIds(entryIds).execute()
-        return returnResult(resp)
+        val result: Result<List<FeedlyEntry>, Exception> = returnResult(resp)
+        // Since we are not yet processing the summary content,
+        // find the first one with a visual.url.
+        // Also filter out entries with a visual url of "none".
+        return result.flatMap {
+            Result.of(it.filter { it.visual?.url != null && it.visual.url != "none" })
+        }
     }
 }
 
-private val BASE_URL = "https://cloud.feedly.com/"
+private val baseUrl = "https://cloud.feedly.com/"
 
 // TODO: make the authentication non-const
 

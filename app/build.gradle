@@ -23,6 +23,7 @@ android {
 }
 
 dependencies {
+    compile 'com.github.kittinunf.result:result:1.2.0'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-moshi:2.0.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])

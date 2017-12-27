@@ -46,10 +46,10 @@ class FeedlyFetcher(@Suppress("unused") private val userId: String,
             throw BadResultException(resp.code())
         }
         val body = resp.body()
-        if (body == null) {
+        return if (body == null) {
             throw MissingBodyException()
         } else {
-            return Result.Success(body)
+            Result.Success(body)
         }
     }
 

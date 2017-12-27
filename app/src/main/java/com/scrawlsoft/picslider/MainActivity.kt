@@ -9,6 +9,14 @@ import com.scrawlsoft.picslider.feedly.FeedlyFetcher
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 
+/*
+ * TODO
+ * - continuation
+ * - better looking buttons
+ * - volume controls
+ * - content grepping for image url
+ */
+
 class MainActivity : AppCompatActivity() {
 
     private val imageFeed: FeedlyImageFeed = FeedlyImageFeed(FeedlyFetcher(DEV_USER, DEV_TOKEN))

@@ -1,6 +1,5 @@
 package com.scrawlsoft.picslider
 
-import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.flatMap
 import com.github.kittinunf.result.map
 import com.scrawlsoft.picslider.feedly.FeedlyFetcher
@@ -17,7 +16,7 @@ class FeedlyImageFeed(private val fetcher: FeedlyFetcher) {
 
     private var entries: List<ImageEntry> = listOf()
     private var currIndex = 0
-//    private var continuation: String? = null
+    private var continuation: String? = null
 
     private fun hasNext() = currIndex < entries.size - 1
     private fun hasPrev() = currIndex > 0
@@ -36,14 +35,6 @@ class FeedlyImageFeed(private val fetcher: FeedlyFetcher) {
         }
     }
 
-    private fun <T : Any> nonNullResult(value: T?, e: Exception = Exception()): Result<T, Exception> {
-        return if (value == null) {
-            Result.Failure(e)
-        } else {
-            Result.Success(value)
-        }
-    }
-
     init {
         imageUrlS = imageUrlSubject.hide().share()
 
@@ -52,19 +43,23 @@ class FeedlyImageFeed(private val fetcher: FeedlyFetcher) {
                     // Find the "Porn" category
                     .flatMap { nonNullResult(it.find { it.label == "Porn" }) }
                     .flatMap { fetcher.fetchEntryIds(it.id) }
-                    .flatMap { fetcher.fetchEntriesForIds(it.ids) }
+                    .flatMap {
+                        continuation = it.continuation
+                        fetcher.fetchEntriesForIds(it.ids)
+                    }
                     .map {
                         entries = entries.plus(it.map {
                             ImageEntry(it.id, it.visual?.url ?: "")
                         })
                         subscriber.onNext(entries.size)
+                        entries.forEach {
+                            picasso().load(it.url).fetch()
+                        }
                     }
         }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    println("RSOITENORSITENOISRTENORISTENSRTOIENRSOTITENTSOIEN: $it")
-                    println("XXX: ${entries[currIndex].url}")
                     imageUrlSubject.onNext(entries[currIndex].url)
                 }
 

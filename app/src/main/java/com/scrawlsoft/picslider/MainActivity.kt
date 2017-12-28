@@ -18,29 +18,35 @@ import kotlinx.android.synthetic.main.activity_main.*
  * - download to files then load file urls
  * - perhaps be a file viewer. Probably a bad and lazy decision.
  * - then you will have to persist shit and sync ugh
+ * - ensure that Picasso instance is created before it's used.
  */
 class MainActivity : AppCompatActivity() {
 
-    private val imageFeed: FeedlyImageFeed = FeedlyImageFeed(FeedlyFetcher(DEV_USER, DEV_TOKEN))
+    private var imageFeed: FeedlyImageFeed? = null // =
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
-        imageFeed.imageUrlS
+        val picasso = Picasso.with(this)
+        picasso.setIndicatorsEnabled(true)
+
+        val feed = FeedlyImageFeed(FeedlyFetcher(DEV_USER, DEV_TOKEN))
+        feed.imageUrlS
                 .subscribe {
-                    println("Trying: $it")
-                    Picasso.with(this).load(it).into(main_image)
+                    picasso().load(it).into(main_image)
                 }
+        imageFeed = feed
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onClickNext(view: View) {
-        imageFeed.next()
+        imageFeed?.next()
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onClickPrev(view: View) {
-        imageFeed.prev()
+        imageFeed?.prev()
     }
 }

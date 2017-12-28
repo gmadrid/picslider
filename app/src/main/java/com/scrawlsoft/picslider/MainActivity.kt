@@ -16,11 +16,9 @@ import kotlinx.android.synthetic.main.activity_main.*
  * - volume controls
  * - content grepping for image url
  * - download to files then load file urls
-     pehaps be a file viewer.pribably a bad and lazy decision
-     then you will have to persist shit and sync ugh
-     
+ * - perhaps be a file viewer. Probably a bad and lazy decision.
+ * - then you will have to persist shit and sync ugh
  */
-
 class MainActivity : AppCompatActivity() {
 
     private val imageFeed: FeedlyImageFeed = FeedlyImageFeed(FeedlyFetcher(DEV_USER, DEV_TOKEN))

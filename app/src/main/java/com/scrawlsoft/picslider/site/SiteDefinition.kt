@@ -1,4 +1,4 @@
-package com.scrawlsoft.picslider
+package com.scrawlsoft.picslider.site
 
 import com.github.kittinunf.result.Result
 import io.reactivex.Observable

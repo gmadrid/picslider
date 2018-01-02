@@ -1,4 +1,4 @@
-package com.scrawlsoft.picslider.maybe
+package com.scrawlsoft.picslider.utils
 
 sealed class Maybe<out T : Any> {
     fun unwrap(): T? = when (this) {

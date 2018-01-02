@@ -3,8 +3,9 @@ package com.scrawlsoft.picslider
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.scrawlsoft.picslider.feedly.FeedlySite
+import com.scrawlsoft.picslider.feedly.FeedlyService
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 
 /*
  * TODO
@@ -26,15 +27,26 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        val site = FeedlySite()
-        site.authenticate().fold({ println(it) }, { println(it) })
-        site.streamList.map { it.filter { it.name == "Porn"} }
+        val service = FeedlyService()
+        service.getCategories()
+                .flatMap { Observable.fromIterable(it) }
+                .filter { it.label == "Porn"}
+                .flatMap { service.getEntryIdsForCategory(it.id) }
+                .flatMap { service.getEntriesForIds(it.ids) }
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    var browser = StreamBrowser(it[0],
-                            Observable.just(Unit),
-                            Observable.just(Unit))
-                    println(browser)
+                    println(it);
                 }
+
+//        val site = FeedlySite()
+//        site.authenticate().fold({ println(it) }, { println(it) })
+//        site.streamList.map { it.filter { it.name == "Porn"} }
+//                .subscribe {
+//                    var browser = StreamBrowser(it[0],
+//                            Observable.just(Unit),
+//                            Observable.just(Unit))
+//                    println(browser)
+//                }
 
 //        val picasso = Picasso.with(this)
 //        picasso.setIndicatorsEnabled(true)

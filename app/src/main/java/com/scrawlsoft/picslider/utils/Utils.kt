@@ -1,4 +1,4 @@
-package com.scrawlsoft.picslider
+package com.scrawlsoft.picslider.utils
 
 import com.github.kittinunf.result.Result
 import com.squareup.picasso.Picasso

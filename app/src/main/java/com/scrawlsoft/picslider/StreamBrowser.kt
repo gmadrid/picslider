@@ -1,8 +1,12 @@
 package com.scrawlsoft.picslider
 
-import com.scrawlsoft.picslider.maybe.Maybe
-import com.scrawlsoft.picslider.maybe.None
-import com.scrawlsoft.picslider.maybe.Some
+import com.scrawlsoft.picslider.site.AuthToken
+import com.scrawlsoft.picslider.site.ContinuationToken
+import com.scrawlsoft.picslider.site.Entry
+import com.scrawlsoft.picslider.site.Stream
+import com.scrawlsoft.picslider.utils.Maybe
+import com.scrawlsoft.picslider.utils.None
+import com.scrawlsoft.picslider.utils.Some
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.BehaviorSubject

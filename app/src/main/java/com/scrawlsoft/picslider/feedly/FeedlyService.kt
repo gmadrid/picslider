@@ -13,7 +13,7 @@ private val defaultBaseUrl = "https://cloud.feedly.com/"
  * Returned types are raw API data objects.
  * All streams returned will be subscribed on Schedulers.io().
  */
-class FeedlyService() {
+class FeedlyService {
     @Suppress("unused")
     private val user = DEV_USER
     private val token = DEV_TOKEN
@@ -45,7 +45,13 @@ class FeedlyService() {
 
     companion object {
         private fun findUrlInContent(content: String): String? {
+            // Look for <img> tags in file with src attrs.
+            // BUG: src must be on same line with img tag.
+            //
+            // The following URL works:
             // <img[^>]* src="()" >
+            //
+            // Also, note the spurious "redundant character escape" warnings.
             val re = Regex("<img\\s+[^>]*src=\\\"([^\\\"]*)\"")
             val f = re.find(content)
             if (f == null) {

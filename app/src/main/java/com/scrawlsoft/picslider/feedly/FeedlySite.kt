@@ -1,17 +1,10 @@
 package com.scrawlsoft.picslider.feedly
 
-import com.github.kittinunf.result.Result
-import com.github.kittinunf.result.flatMap
-import com.github.kittinunf.result.getOrElse
-import com.scrawlsoft.picslider.site.*
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import java.net.URL
+import com.scrawlsoft.picslider.site.Entry
 
-class FeedlyAuthToken internal constructor(private val user: String, private val token: String) : AuthToken
-
-class FeedlyContinuationToken internal constructor(internal val token: String) : ContinuationToken
+//class FeedlyAuthToken internal constructor(private val user: String, private val token: String) : AuthToken
+//
+//class FeedlyContinuationToken internal constructor(internal val token: String) : ContinuationToken
 
 /*class FeedlySite : Site<FeedlyStream, FeedlyEntry, FeedlyAuthToken, FeedlyContinuationToken> {
     override val name: String = "Feedly"
@@ -36,7 +29,7 @@ class FeedlyContinuationToken internal constructor(internal val token: String) :
     }
 }*/
 
-class FeedlyStream(private val id: String,
+/*class FeedlyStream(private val id: String,
                    override val name: String,
                    override val description: String?,
                    override val iconURL: URL?)
@@ -59,6 +52,6 @@ class FeedlyStream(private val id: String,
         TODO("not implemented")
         println("${continuation.token}")
     }
-}
+}*/
 
 class FeedlyEntry(override val url: String) : Entry

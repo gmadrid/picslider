@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
                 .flatMap { service.getEntriesForIds(it.ids) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onError = { println("ERROR: $it") }) {
-                    println(it);
+                    println(it)
                 }
 
 //        val site = FeedlySite()

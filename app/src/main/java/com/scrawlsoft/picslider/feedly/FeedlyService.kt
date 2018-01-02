@@ -42,7 +42,6 @@ class FeedlyService {
                 .subscribeOn(Schedulers.io())
     }
 
-
     companion object {
         private fun findUrlInContent(content: String): String? {
             // Look for <img> tags in file with src attrs.
@@ -72,7 +71,6 @@ class FeedlyService {
 
             return FeedlyApiEntry(entry.id, url, entry.visual, entry.summary)
         }
-
     }
 
 }

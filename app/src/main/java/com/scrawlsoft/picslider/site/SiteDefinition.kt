@@ -1,9 +1,5 @@
 package com.scrawlsoft.picslider.site
 
-import com.github.kittinunf.result.Result
-import io.reactivex.Observable
-import java.net.URL
-
 /**
  * Conceptually, we have these entities:
  *
@@ -20,6 +16,7 @@ import java.net.URL
  *         stuff, for example, a Tumblr post may have a title, date, summary text, etc.
  */
 
+/*
 interface AuthToken
 
 interface Site<S: Stream<E, T, C>, E: Entry, T: AuthToken, C: ContinuationToken> {
@@ -48,6 +45,7 @@ interface Stream<E: Entry, in T: AuthToken, C: ContinuationToken> {
 interface Entry {
     val url: String
 }
+*/
 
 /*
 class FeedlyImageFeed(private val fetcher: FeedlyFetcher) {

@@ -1,7 +1,5 @@
 package com.scrawlsoft.picslider.feedly
 
-import com.scrawlsoft.picslider.site.Entry
-
 //class FeedlyAuthToken internal constructor(private val user: String, private val token: String) : AuthToken
 //
 //class FeedlyContinuationToken internal constructor(internal val token: String) : ContinuationToken
@@ -54,4 +52,4 @@ import com.scrawlsoft.picslider.site.Entry
     }
 }*/
 
-class FeedlyEntry(override val url: String) : Entry
+//class FeedlyEntry(override val url: String) : Entry

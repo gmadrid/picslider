@@ -34,7 +34,9 @@ class MainActivity : AppCompatActivity() {
         browser.currentEntry
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    picasso().load(it.url).into(main_image)
+                    picasso().load(it.url)
+                            .placeholder(R.drawable.loading_icon)
+                            .into(main_image)
                 }
     }
 }

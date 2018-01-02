@@ -6,6 +6,7 @@ import android.view.View
 import com.scrawlsoft.picslider.feedly.FeedlyService
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 
 /*
  * TODO
@@ -30,11 +31,11 @@ class MainActivity : AppCompatActivity() {
         val service = FeedlyService()
         service.getCategories()
                 .flatMap { Observable.fromIterable(it) }
-                .filter { it.label == "Porn"}
+                .filter { it.label == "Porn" }
                 .flatMap { service.getEntryIdsForCategory(it.id) }
                 .flatMap { service.getEntriesForIds(it.ids) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribeBy(onError = { println("ERROR: $it") }) {
                     println(it);
                 }
 

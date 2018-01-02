@@ -38,7 +38,38 @@ class FeedlyService() {
 
     fun getEntriesForIds(entryIds: List<String>): Observable<List<FeedlyApiEntry>> {
         return api.entriesForIds(entryIds)
+                .map { it.map { FeedlyService.extractUrl(it) } }
                 .subscribeOn(Schedulers.io())
     }
+
+
+    companion object {
+        private fun findUrlInContent(content: String): String? {
+            // <img[^>]* src="()" >
+            val re = Regex("<img\\s+[^>]*src=\\\"([^\\\"]*)\"")
+            val f = re.find(content)
+            if (f == null) {
+                println("NOREFOUND")
+            } else {
+                println("REMATCH: ${f.groupValues.size} ${f.groupValues[1]}")
+                if (f.groupValues.size > 1) {
+                    return f.groupValues[1]
+                }
+            }
+            return null
+        }
+
+        private fun extractUrl(entry: FeedlyApiEntry): FeedlyApiEntry {
+            var url = entry.visual?.url
+            if (url == null) {
+                url = findUrlInContent(entry.summary?.content ?: "")
+                println("GOT ONE: $url")
+            }
+
+            return FeedlyApiEntry(entry.id, url, entry.visual, entry.summary)
+        }
+
+    }
+
 }
 

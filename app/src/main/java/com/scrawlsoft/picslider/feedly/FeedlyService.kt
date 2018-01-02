@@ -38,7 +38,7 @@ class FeedlyService() {
 
     fun getEntriesForIds(entryIds: List<String>): Observable<List<FeedlyApiEntry>> {
         return api.entriesForIds(entryIds)
-                .map { it.map { FeedlyService.extractUrl(it) } }
+                .map { it.map { FeedlyService.extractUrl(it) }.filter { it.url != null } }
                 .subscribeOn(Schedulers.io())
     }
 
@@ -51,7 +51,6 @@ class FeedlyService() {
             if (f == null) {
                 println("NOREFOUND")
             } else {
-                println("REMATCH: ${f.groupValues.size} ${f.groupValues[1]}")
                 if (f.groupValues.size > 1) {
                     return f.groupValues[1]
                 }
@@ -63,7 +62,6 @@ class FeedlyService() {
             var url = entry.visual?.url
             if (url == null) {
                 url = findUrlInContent(entry.summary?.content ?: "")
-                println("GOT ONE: $url")
             }
 
             return FeedlyApiEntry(entry.id, url, entry.visual, entry.summary)

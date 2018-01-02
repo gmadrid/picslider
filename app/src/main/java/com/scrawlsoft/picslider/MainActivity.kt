@@ -26,11 +26,11 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        val browser = StreamBrowser(prev_button.clicks(), next_button.clicks())
-
+        // We have to load the context into Picasso before we can do anything with it.
         val picasso = Picasso.with(this)
         picasso.setIndicatorsEnabled(true)
 
+        val browser = StreamBrowser(prev_button.clicks(), next_button.clicks())
         browser.currentEntry
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -38,5 +38,8 @@ class MainActivity : AppCompatActivity() {
                             .placeholder(R.drawable.loading_icon)
                             .into(main_image)
                 }
+
+        browser.hasPrev.subscribe { prev_button.isEnabled = it }
+        browser.hasNext.subscribe { next_button.isEnabled = it }
     }
 }

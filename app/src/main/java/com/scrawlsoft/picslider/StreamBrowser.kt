@@ -20,8 +20,8 @@ class StreamBrowser(prevInput: Observable<Unit>, nextInput: Observable<Unit>) {
     val currentEntry: Observable<FeedlyApiEntry> =
             Observable.combineLatest(currentIndex, entries, BiFunction { idx, lst -> lst[idx] })
 
-    private val hasPrev = currentIndex.map { it > 0 }
-    private val hasNext =
+    val hasPrev = currentIndex.map { it > 0 }
+    val hasNext =
             Observable.combineLatest(currentIndex, entries, BiFunction<Int, List<FeedlyApiEntry>, Boolean> { idx, lst ->
                 idx < lst.size - 1
             })

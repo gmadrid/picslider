@@ -3,11 +3,8 @@ package com.scrawlsoft.picslider
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.scrawlsoft.picslider.feedly.DEV_TOKEN
-import com.scrawlsoft.picslider.feedly.DEV_USER
-import com.scrawlsoft.picslider.feedly.FeedlyFetcher
-import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_main.*
+import com.scrawlsoft.picslider.feedly.FeedlySite
+import io.reactivex.Observable
 
 /*
  * TODO
@@ -22,31 +19,41 @@ import kotlinx.android.synthetic.main.activity_main.*
  */
 class MainActivity : AppCompatActivity() {
 
-    private var imageFeed: FeedlyImageFeed? = null // =
+//    private var imageFeed: FeedlyImageFeed? = null // =
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
 
-        val picasso = Picasso.with(this)
-        picasso.setIndicatorsEnabled(true)
-
-        val feed = FeedlyImageFeed(FeedlyFetcher(DEV_USER, DEV_TOKEN))
-        feed.imageUrlS
+        val site = FeedlySite()
+        site.authenticate().fold({ println(it) }, { println(it) })
+        site.streamList.map { it.filter { it.name == "Porn"} }
                 .subscribe {
-                    picasso().load(it).into(main_image)
+                    var browser = StreamBrowser(it[0],
+                            Observable.just(Unit),
+                            Observable.just(Unit))
+                    println(browser)
                 }
-        imageFeed = feed
+
+//        val picasso = Picasso.with(this)
+//        picasso.setIndicatorsEnabled(true)
+//
+//        val feed = FeedlyImageFeed(FeedlyFetcher(DEV_USER, DEV_TOKEN))
+//        feed.imageUrlS
+//                .subscribe {
+//                    picasso().load(it).into(main_image)
+//                }
+//        imageFeed = feed
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onClickNext(view: View) {
-        imageFeed?.next()
+//        imageFeed?.next()
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onClickPrev(view: View) {
-        imageFeed?.prev()
+//        imageFeed?.prev()
     }
 }

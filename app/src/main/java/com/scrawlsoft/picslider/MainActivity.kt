@@ -1,6 +1,5 @@
 package com.scrawlsoft.picslider
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
@@ -33,26 +32,14 @@ import java.io.FileOutputStream
  */
 class MainActivity : AppCompatActivity() {
 
-    class MarkAsReadCallback(private val context: Context,
-                             private val service: FeedlyService,
-                             private val id: String) : Callback {
+    class ClosureCallback(private val successClosure: () -> Unit,
+                          private val errorClosure: () -> Unit = {}) : Callback {
         override fun onSuccess() {
-            service.markAsRead(id)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeBy(onError = { err ->
-                        println(err.toString())
-                        Toast.makeText(context, "Failed to mark as read", Toast.LENGTH_LONG).show()
-                    }, onComplete = {
-                        Toast.makeText(context, "Marked as read.", Toast.LENGTH_SHORT).show()
-                    })
+            successClosure()
         }
 
         override fun onError() {
-            Observable.just("Failed to load image")
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                    }
+            errorClosure()
         }
     }
 
@@ -71,9 +58,26 @@ class MainActivity : AppCompatActivity() {
         browser.currentEntry
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    val entryId = it.id
                     picasso().load(it.url)
                             .placeholder(R.drawable.loading_icon)
-                            .into(main_image, MarkAsReadCallback(this, service, it.id))
+                            .into(main_image, ClosureCallback(successClosure = {
+                                service.markAsRead(entryId)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribeBy(onError = { err ->
+                                            println(err.toString())
+                                            Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_LONG).show()
+                                        }, onComplete = {
+                                            Toast.makeText(this, "Marked as read.", Toast.LENGTH_SHORT).show()
+                                        })
+
+                            }, errorClosure = {
+                                Observable.just("Failed to load image")
+                                        .subscribeOn(AndroidSchedulers.mainThread())
+                                        .subscribe {
+                                            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                                        }
+                            }))
                 }
 
         browser.hasPrev.subscribe(prev_button.enabled())

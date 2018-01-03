@@ -42,6 +42,15 @@ class FeedlyService {
                 .subscribeOn(Schedulers.io())
     }
 
+    fun markAsRead(entryId: String): Observable<Unit> {
+        return markAsRead(listOf(entryId))
+    }
+
+    fun markAsRead(entryIds: List<String>): Observable<Unit> {
+        val req = FeedlyApiMarkerRequest("markAsRead", "entries", entryIds)
+        return api.mark(req)
+    }
+
     companion object {
         private fun findUrlInContent(content: String): String? {
             // Look for <img> tags in file with src attrs.

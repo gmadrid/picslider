@@ -1,6 +1,7 @@
 package com.scrawlsoft.picslider.feedly
 
 import io.reactivex.Observable
+import retrofit2.Call
 import retrofit2.http.*
 
 data class FeedlyApiCategory(val id: String, val label: String, val description: String?)
@@ -12,6 +13,7 @@ data class FeedlyApiEntry(
         internal val summary: FeedlyEntrySummary?)
 data class FeedlyEntryVisual(val url: String, val width: Int, val height: Int, val contentType: String)
 data class FeedlyEntrySummary(val content: String)
+data class FeedlyApiMarkerRequest(val action: String, val type: String, val entryIds: List<String>)
 
 /**
  * Retrofit-style API description of the Feedly Dev API.
@@ -39,4 +41,7 @@ interface FeedlyApi {
 
     @POST("/v3/entries/.mget")
     fun entriesForIds(@Body body: List<String>): Observable<List<FeedlyApiEntry>>
+
+    @POST("/v3/markers")
+    fun mark(@Body body: FeedlyApiMarkerRequest): Observable<Unit>
 }

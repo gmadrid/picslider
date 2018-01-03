@@ -6,8 +6,9 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.BehaviorSubject
 
-class StreamBrowser(prevInput: Observable<Unit>, nextInput: Observable<Unit>) {
-    private val service = FeedlyService()
+class StreamBrowser(private val service: FeedlyService,
+                    prevInput: Observable<Unit>,
+                    nextInput: Observable<Unit>) {
 
     private val entries = service.getCategories()
             .flatMap { Observable.fromIterable(it) }

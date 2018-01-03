@@ -36,6 +36,7 @@ interface FeedlyApi {
     @GET("/v3/streams/ids")
     fun entryIdsForStream(@Header("Authorization") authHeader: String,
                           @Query("streamId") streamId: String,
+                          @Query("unreadOnly") unreadOnly: Boolean = true,
                           @Query("count") count: Int = 100)
             : Observable<FeedlyApiEntryIdsResponse>
 
@@ -43,5 +44,6 @@ interface FeedlyApi {
     fun entriesForIds(@Body body: List<String>): Observable<List<FeedlyApiEntry>>
 
     @POST("/v3/markers")
-    fun mark(@Body body: FeedlyApiMarkerRequest): Observable<Unit>
+    fun mark(@Header("Authorization") authHeader: String,
+             @Body body: FeedlyApiMarkerRequest): Call<Void>
 }

@@ -12,7 +12,9 @@ import com.scrawlsoft.picslider.feedly.FeedlyService
 import com.scrawlsoft.picslider.utils.picasso
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.ByteArrayOutputStream
@@ -35,13 +37,21 @@ class MainActivity : AppCompatActivity() {
 
     class MarkCallback(private val context: Context, private val service: FeedlyService, private val id: String) : Callback {
         override fun onSuccess() {
-            service.markAsRead(id).subscribe {
-                Toast.makeText(context, "Marked as read.", Toast.LENGTH_SHORT).show()
-            }
+            service.markAsRead(id)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(onError = {
+                        Toast.makeText(context, "Failed to mark as read", Toast.LENGTH_LONG).show()
+                    }, onComplete = {
+                        Toast.makeText(context, "Marked as read.", Toast.LENGTH_SHORT).show()
+                    })
         }
 
         override fun onError() {
-            Toast.makeText(context, "Failed to load image", Toast.LENGTH_SHORT).show()
+            Observable.just("Failed to load image")
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                    }
         }
     }
 

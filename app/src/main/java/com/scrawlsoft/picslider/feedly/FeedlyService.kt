@@ -42,13 +42,19 @@ class FeedlyService {
                 .subscribeOn(Schedulers.io())
     }
 
-    fun markAsRead(entryId: String): Observable<Unit> {
+    fun markAsRead(entryId: String): Observable<Void> {
         return markAsRead(listOf(entryId))
     }
 
-    fun markAsRead(entryIds: List<String>): Observable<Unit> {
-        val req = FeedlyApiMarkerRequest("markAsRead", "entries", entryIds)
-        return api.mark(req)
+    fun markAsRead(entryIds: List<String>): Observable<Void> {
+        return Observable.create<Void> { subscriber ->
+            val req = FeedlyApiMarkerRequest("markAsRead", "entries", entryIds)
+            val resp = api.mark(authHeader, req).execute()
+            if (resp.code() != 200) {
+                subscriber.onError(Exception("Error in markAsRead: received code: ${resp.code()}"))
+            }
+            subscriber.onComplete()
+        }.subscribeOn(Schedulers.io())
     }
 
     companion object {

@@ -52,7 +52,9 @@ class MainActivity : AppCompatActivity() {
         val picasso = Picasso.with(this)
         picasso.setIndicatorsEnabled(true)
 
-        val service = FeedlyService()
+        // The debug version reads our tokens from local.properties with help from Gradle config.
+        val userToken = FeedlyService.readTokenFromResources(resources)
+        val service = FeedlyService(userToken)
 
         val browser = StreamBrowser(service, prev_button.clicks(), next_button.clicks())
         browser.currentEntry

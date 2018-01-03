@@ -1,5 +1,7 @@
 package com.scrawlsoft.picslider.feedly
 
+import android.content.res.Resources
+import com.scrawlsoft.picslider.R
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -14,11 +16,8 @@ private val defaultBaseUrl = "https://cloud.feedly.com/"
  * Returned types are raw API data objects.
  * All streams returned will be subscribed on Schedulers.io().
  */
-class FeedlyService {
-    @Suppress("unused")
-    private val user = DEV_USER
-    private val token = DEV_TOKEN
-    private val authHeader = "OAuth $token"
+class FeedlyService(userToken: String) {
+    private val authHeader = "OAuth $userToken"
 
     private val api: FeedlyApi = Retrofit.Builder()
             .baseUrl(defaultBaseUrl)
@@ -50,6 +49,10 @@ class FeedlyService {
     }
 
     companion object {
+        fun readTokenFromResources(resources: Resources): String {
+            return resources.getString(R.string.user_token)
+        }
+
         private fun findUrlInContent(content: String): String? {
             // Look for <img> tags in file with src attrs.
             // BUG: src must be on same line with img tag.
@@ -79,6 +82,5 @@ class FeedlyService {
             return FeedlyApiEntry(entry.id, url, entry.visual, entry.summary)
         }
     }
-
 }
 

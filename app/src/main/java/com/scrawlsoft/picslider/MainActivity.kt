@@ -1,12 +1,20 @@
 package com.scrawlsoft.picslider
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding2.view.enabled
 import com.scrawlsoft.picslider.utils.picasso
 import com.squareup.picasso.Picasso
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.withLatestFrom
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+
 
 /*
  * TODO
@@ -39,7 +47,21 @@ class MainActivity : AppCompatActivity() {
                             .into(main_image)
                 }
 
-        browser.hasPrev.subscribe { prev_button.isEnabled = it }
-        browser.hasNext.subscribe { next_button.isEnabled = it }
+        browser.hasPrev.subscribe(prev_button.enabled())
+        browser.hasNext.subscribe(next_button.enabled())
+
+        save_button.clicks().withLatestFrom(browser.currentEntry) { _, entry -> entry }
+                .subscribe {
+                    val image = main_image.drawable as BitmapDrawable
+                    val bitmap = image.bitmap
+                    val outStream = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
+                    val bytes = outStream.toByteArray()
+
+                    val file = File(getExternalFilesDir(null), "girl-${it.id}.png")
+                    val fileOut = FileOutputStream(file)
+                    fileOut.write(bytes)
+                    fileOut.close()
+                }
     }
 }

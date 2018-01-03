@@ -33,7 +33,8 @@ interface FeedlyApi {
 
     @GET("/v3/streams/ids")
     fun entryIdsForStream(@Header("Authorization") authHeader: String,
-                          @Query("streamId") streamId: String)
+                          @Query("streamId") streamId: String,
+                          @Query("count") count: Int = 100)
             : Observable<FeedlyApiEntryIdsResponse>
 
     @POST("/v3/entries/.mget")

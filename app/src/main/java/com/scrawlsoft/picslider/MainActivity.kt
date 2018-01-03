@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.view.enabled
 import com.scrawlsoft.picslider.utils.picasso
@@ -58,10 +59,13 @@ class MainActivity : AppCompatActivity() {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
                     val bytes = outStream.toByteArray()
 
-                    val file = File(getExternalFilesDir(null), "girl-${it.id}.png")
+                    val filename = "girl-${it.id}.png"
+                    val file = File(getExternalFilesDir(null), filename)
                     val fileOut = FileOutputStream(file)
                     fileOut.write(bytes)
                     fileOut.close()
+
+                    Toast.makeText(this, "Wrote $filename", Toast.LENGTH_LONG).show()
                 }
     }
 }

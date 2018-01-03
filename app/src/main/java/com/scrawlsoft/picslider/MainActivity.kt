@@ -26,9 +26,15 @@ import java.io.FileOutputStream
  * - continuation
  * - better looking buttons
  * - volume controls
- * - content grepping for image url
- * - download to files then load file urls
  * - save image to Dropbox, converting to _1280 if possible.
+ * - when saving, use _1280 version.
+ * - Use DownloadManager to download directly to device.
+ * - pre-load images.
+ *   - don't overfill cache
+ *   - increase space available for disk cache.
+ * - animate moving to new image
+ * - swipe to new image
+ * - In FeedlyApi, change return types to Single where able.
  */
 class MainActivity : AppCompatActivity() {
 

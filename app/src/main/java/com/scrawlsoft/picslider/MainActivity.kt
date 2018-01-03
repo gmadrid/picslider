@@ -1,5 +1,6 @@
 package com.scrawlsoft.picslider
 
+import android.accounts.AccountManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
@@ -53,6 +54,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
+        val dropboxId = resources.getString(R.string.dropbox_app_id)
+        val dropboxSecret = resources.getString(R.string.dropbox_app_secret)
+
+
+        val acctMgr = AccountManager.get(this)
+        val accts = acctMgr.getAccountsByType("dropbox")
+        println(accts)
+        val options = Bundle()
+        //acctMgr.getAuthToken()
+
 
         // We have to load the context into Picasso before we can do anything with it.
         val picasso = Picasso.with(this)

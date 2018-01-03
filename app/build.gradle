@@ -7,6 +7,9 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 def userId = properties.getProperty('user.id')
 def userToken = properties.getProperty('user.token')
 
+def dropboxAppId = properties.getProperty('dropbox.app.key')
+def dropboxAppSecret = properties.getProperty('dropbox.app.secret')
+
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -21,6 +24,9 @@ android {
         debug {
             resValue "string", "user_id", userId
             resValue "string", "user_token", userToken
+
+            resValue "string", "dropbox_app_id", dropboxAppId
+            resValue "string", "dropbox_app_secret", dropboxAppSecret
         }
         release {
             minifyEnabled false
@@ -43,6 +49,8 @@ dependencies {
 
     compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     compile 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
+
+    compile 'com.dropbox.core:dropbox-core-sdk:3.0.5'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"

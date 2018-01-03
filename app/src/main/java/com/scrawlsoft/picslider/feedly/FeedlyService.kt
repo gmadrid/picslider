@@ -1,5 +1,6 @@
 package com.scrawlsoft.picslider.feedly
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
@@ -22,39 +23,30 @@ class FeedlyService {
     private val api: FeedlyApi = Retrofit.Builder()
             .baseUrl(defaultBaseUrl)
             .addConverterFactory(MoshiConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .build()
             .create(FeedlyApi::class.java)
 
     fun getCategories(): Observable<List<FeedlyApiCategory>> {
         return api.categories(authHeader)
-                .subscribeOn(Schedulers.io())
     }
 
     fun getEntryIdsForCategory(streamId: String): Observable<FeedlyApiEntryIdsResponse> {
         return api.entryIdsForStream(authHeader, streamId)
-                .subscribeOn(Schedulers.io())
     }
 
     fun getEntriesForIds(entryIds: List<String>): Observable<List<FeedlyApiEntry>> {
         return api.entriesForIds(entryIds)
                 .map { it.map { FeedlyService.extractUrl(it) }.filter { it.url != null } }
-                .subscribeOn(Schedulers.io())
     }
 
-    fun markAsRead(entryId: String): Observable<Void> {
+    fun markAsRead(entryId: String): Completable {
         return markAsRead(listOf(entryId))
     }
 
-    fun markAsRead(entryIds: List<String>): Observable<Void> {
-        return Observable.create<Void> { subscriber ->
-            val req = FeedlyApiMarkerRequest("markAsRead", "entries", entryIds)
-            val resp = api.mark(authHeader, req).execute()
-            if (resp.code() != 200) {
-                subscriber.onError(Exception("Error in markAsRead: received code: ${resp.code()}"))
-            }
-            subscriber.onComplete()
-        }.subscribeOn(Schedulers.io())
+    fun markAsRead(entryIds: List<String>): Completable {
+        val req = FeedlyApiMarkerRequest("markAsRead", "entries", entryIds)
+        return api.mark(authHeader, req)
     }
 
     companion object {

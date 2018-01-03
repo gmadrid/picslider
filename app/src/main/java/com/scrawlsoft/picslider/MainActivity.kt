@@ -29,17 +29,18 @@ import java.io.FileOutputStream
  * - volume controls
  * - content grepping for image url
  * - download to files then load file urls
- * - perhaps be a file viewer. Probably a bad and lazy decision.
- * - then you will have to persist shit and sync ugh
- * - ensure that Picasso instance is created before it's used.
+ * - save image to Dropbox, converting to _1280 if possible.
  */
 class MainActivity : AppCompatActivity() {
 
-    class MarkCallback(private val context: Context, private val service: FeedlyService, private val id: String) : Callback {
+    class MarkAsReadCallback(private val context: Context,
+                             private val service: FeedlyService,
+                             private val id: String) : Callback {
         override fun onSuccess() {
             service.markAsRead(id)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeBy(onError = {
+                    .subscribeBy(onError = { err ->
+                        println(err.toString())
                         Toast.makeText(context, "Failed to mark as read", Toast.LENGTH_LONG).show()
                     }, onComplete = {
                         Toast.makeText(context, "Marked as read.", Toast.LENGTH_SHORT).show()
@@ -72,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribe {
                     picasso().load(it.url)
                             .placeholder(R.drawable.loading_icon)
-                            .into(main_image, MarkCallback(this, service, it.id))
+                            .into(main_image, MarkAsReadCallback(this, service, it.id))
                 }
 
         browser.hasPrev.subscribe(prev_button.enabled())

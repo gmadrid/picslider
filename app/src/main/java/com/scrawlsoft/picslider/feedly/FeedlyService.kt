@@ -2,6 +2,7 @@ package com.scrawlsoft.picslider.feedly
 
 import android.content.res.Resources
 import com.scrawlsoft.picslider.R
+import com.scrawlsoft.picslider.utils.picasso
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -36,7 +37,18 @@ class FeedlyService(userToken: String) {
 
     fun getEntriesForIds(entryIds: List<String>): Observable<List<FeedlyApiEntry>> {
         return api.entriesForIds(entryIds)
-                .map { it.map { FeedlyService.extractUrl(it) }.filter { it.url != null } }
+                .map {
+                    it.map {
+                        val entry = FeedlyService.extractUrl(it)
+                        if (entry.url != null) {
+                            // Pre-fetch the image data.
+                            // TODO: move this after the filter call.
+                            picasso().load(entry.url).fetch()
+                            // TODO: consider caching in reverse order.
+                        }
+                        entry
+                    }.filter { it.url != null }
+                }
     }
 
     fun markAsRead(entryId: String): Completable {

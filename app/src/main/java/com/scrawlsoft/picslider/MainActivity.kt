@@ -1,7 +1,8 @@
 package com.scrawlsoft.picslider
 
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
@@ -16,9 +17,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 
 
 /*
@@ -28,7 +26,6 @@ import java.io.FileOutputStream
  * - volume controls
  * - save image to Dropbox, converting to _1280 if possible.
  * - when saving, use _1280 version.
- * - Use DownloadManager to download directly to device.
  * - pre-load images.
  *   - don't overfill cache
  *   - increase space available for disk cache.
@@ -47,6 +44,28 @@ class MainActivity : AppCompatActivity() {
         override fun onError() {
             errorClosure()
         }
+    }
+
+    fun upscaleTumblrUri(uriString: String): String {
+        val uri = Uri.parse(uriString)
+        if (uri.getHost().contains("tumblr")) {
+            val re = Regex("_\\d?00.")
+            val replaced = re.replace(uri.path, "_1280.")
+
+            val newUri = uri.buildUpon().path(replaced).build()
+            println("The thing: $newUri")
+            return newUri.toString()
+        }
+        return uriString
+    }
+
+    fun downloadUri(uriString: String) {
+        val uri = upscaleTumblrUri(uriString)
+        val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val req = DownloadManager.Request(Uri.parse(uri))
+        req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+        dm.enqueue(req)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,19 +112,9 @@ class MainActivity : AppCompatActivity() {
 
         save_button.clicks().withLatestFrom(browser.currentEntry) { _, entry -> entry }
                 .subscribe {
-                    val image = main_image.drawable as BitmapDrawable
-                    val bitmap = image.bitmap
-                    val outStream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-                    val bytes = outStream.toByteArray()
-
-                    val filename = "girl-${it.id}.png"
-                    val file = File(getExternalFilesDir(null), filename)
-                    val fileOut = FileOutputStream(file)
-                    fileOut.write(bytes)
-                    fileOut.close()
-
-                    Toast.makeText(this, "Wrote $filename", Toast.LENGTH_LONG).show()
+                    if (it.url != null) {
+                        downloadUri(it.url)
+                    }
                 }
     }
 }

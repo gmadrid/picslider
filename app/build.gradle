@@ -3,9 +3,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-def userId = properties.getProperty('user.id')
-def userToken = properties.getProperty('user.token')
+properties.load(project.rootProject.file('keys.properties').newDataInputStream())
+def feedlyId = properties.getProperty('feedly.id')
+def feedlyToken = properties.getProperty('feedly.token')
 
 def dropboxAppId = properties.getProperty('dropbox.app.key')
 def dropboxAppSecret = properties.getProperty('dropbox.app.secret')
@@ -22,8 +22,8 @@ android {
     }
     buildTypes {
         debug {
-            resValue "string", "user_id", userId
-            resValue "string", "user_token", userToken
+            resValue "string", "feedly_id", feedlyId
+            resValue "string", "feedly_token", feedlyToken
 
             resValue "string", "dropbox_app_id", dropboxAppId
             resValue "string", "dropbox_app_secret", dropboxAppSecret
@@ -34,7 +34,9 @@ android {
         }
     }
 }
-
+kapt {
+    generateStubs = true
+}
 dependencies {
     compile "io.reactivex.rxjava2:rxjava:2.1.8"
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
@@ -51,6 +53,10 @@ dependencies {
     compile 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
 
     compile 'com.dropbox.core:dropbox-core-sdk:3.0.5'
+
+    compile 'com.google.dagger:dagger:2.4'
+    kapt 'com.google.dagger:dagger-compiler:2.4'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"

@@ -62,14 +62,14 @@ class FeedlyService(userToken: String) {
 
     companion object {
         fun readTokenFromResources(resources: Resources): String {
-            return resources.getString(R.string.user_token)
+            return resources.getString(R.string.feedly_token)
         }
 
         private fun findUrlInContent(content: String): String? {
             // Look for <img> tags in file with src attrs.
             // BUG: src must be on same line with img tag.
             //
-            // The following URL works:
+            // The following regex works:
             // <img[^>]* src="()" >
             //
             // Also, note the spurious "redundant character escape" warnings.

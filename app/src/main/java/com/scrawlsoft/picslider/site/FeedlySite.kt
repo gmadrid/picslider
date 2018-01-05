@@ -1,4 +1,4 @@
-package com.scrawlsoft.picslider.feedly
+package com.scrawlsoft.picslider.site
 
 //class FeedlyAuthToken internal constructor(private val user: String, private val token: String) : AuthToken
 //

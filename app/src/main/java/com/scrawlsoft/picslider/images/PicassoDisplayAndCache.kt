@@ -10,13 +10,15 @@ class PicassoDisplayAndCache(private val picasso: Picasso) : ImageDisplayAndCach
 
     override fun displayIntoView(uri: Uri, imageView: ImageView): Completable {
         return Completable.create { subscriber ->
-            picasso.load(uri).into(imageView, CompletableCallback(subscriber))
+            picasso.load(uri).into(imageView,
+                    CompletableCallback(subscriber, Exception("Picasso failed to load: $uri")))
         }
     }
 
     override fun loadIntoCache(uri: Uri): Completable {
         return Completable.create { subscriber ->
-            picasso.load(uri).fetch(CompletableCallback(subscriber))
+            picasso.load(uri).fetch(
+                    CompletableCallback(subscriber, Exception("Failed to fetch: $uri")))
         }
     }
 }

@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                             .andThen(feedlyService.markAsRead(entryId))
                             .observeOn(AndroidSchedulers.mainThread())
                             // TODO: Figure out now to get rid of nested subscribes.
-                            .subscribeBy(onError = { err ->
+                            .subscribeBy(onError = { _ ->
                                 Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_SHORT).show()
                             }) {
                                 Toast.makeText(this, "Marked as read", Toast.LENGTH_SHORT).show()

@@ -6,7 +6,7 @@ import com.scrawlsoft.picslider.utils.CompletableCallback
 import com.squareup.picasso.Picasso
 import io.reactivex.Completable
 
-class PicassoWrapper(private val picasso: Picasso) : ImageDisplayAndCache {
+class PicassoDisplayAndCache(private val picasso: Picasso) : ImageDisplayAndCache {
 
     override fun displayIntoView(uri: Uri, imageView: ImageView): Completable {
         return Completable.create { subscriber ->

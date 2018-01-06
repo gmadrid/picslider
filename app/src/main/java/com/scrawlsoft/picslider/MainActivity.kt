@@ -10,8 +10,7 @@ import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.view.enabled
 import com.scrawlsoft.picslider.feedly.FeedlyService
-import com.scrawlsoft.picslider.images.ClosureCallback
-import com.squareup.picasso.Picasso
+import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -40,7 +39,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var feedlyService: FeedlyService
-    @Inject lateinit var picasso: Picasso
+    //    @Inject lateinit var picasso: Picasso
+    @Inject lateinit var imageDisplay: ImageDisplayAndCache
 
     private val volumeSubject = PublishSubject.create<Int>()
 
@@ -90,42 +90,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         (application as PicSliderApp).appComponent.inject(this)
-
         setContentView(R.layout.activity_main)
-
-        // We have to load the context into Picasso before we can do anything with it.
-        // TODO: DELETE ME
-//        val picasso = Picasso.with(this)
-//        picasso.setIndicatorsEnabled(true)
 
         val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
         val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
         val prevStream = Observable.merge(volPrev, prev_button.clicks())
-        val nextStream = Observable.merge(volNext, prev_button.clicks())
+        val nextStream = Observable.merge(volNext, next_button.clicks())
         val browser = StreamBrowser(feedlyService, prevStream, nextStream)
         browser.currentEntry
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribe {
                     val entryId = it.id
-                    picasso.load(it.url)
-                            .placeholder(R.drawable.loading_icon)
-                            .into(main_image, ClosureCallback(
-                                    successClosure = {
-                                        feedlyService.markAsRead(entryId)
-                                                .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribeBy(onError = { err ->
-                                                    println(err.toString())
-                                                    Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_LONG).show()
-                                                })
-                                    },
-                                    errorClosure = {
-                                        Observable.just("Failed to load image")
-                                                .subscribeOn(AndroidSchedulers.mainThread())
-                                                .subscribe {
-                                                    Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-                                                }
-                                    }))
+                    val uri = Uri.parse(it.url)
+                    imageDisplay.displayIntoView(uri, main_image)
+                            .andThen(feedlyService.markAsRead(entryId))
+                            .observeOn(AndroidSchedulers.mainThread())
+                            // TODO: Figure out now to get rid of nested subscribes.
+                            .subscribeBy(onError = { err ->
+                                Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_SHORT).show()
+                            }) {
+                                Toast.makeText(this, "Marked as read", Toast.LENGTH_SHORT).show()
+                            }
                 }
 
         browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())

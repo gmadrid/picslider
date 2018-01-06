@@ -1,6 +1,8 @@
 package com.scrawlsoft.picslider.dagger
 
 import android.content.Context
+import com.scrawlsoft.picslider.images.ImageDisplayAndCache
+import com.scrawlsoft.picslider.images.PicassoDisplayAndCache
 import com.squareup.picasso.Picasso
 import dagger.Module
 import dagger.Provides
@@ -12,5 +14,11 @@ class PicassoModule {
     @Singleton
     fun providePicasso(context: Context): Picasso {
         return Picasso.with(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideImageDisplayAndCache(picasso: Picasso): ImageDisplayAndCache {
+        return PicassoDisplayAndCache(picasso)
     }
 }

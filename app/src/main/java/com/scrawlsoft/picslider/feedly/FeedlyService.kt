@@ -1,42 +1,33 @@
 package com.scrawlsoft.picslider.feedly
 
-import android.content.res.Resources
-import com.scrawlsoft.picslider.R
 import com.scrawlsoft.picslider.utils.picasso
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.moshi.MoshiConverterFactory
-
-private val defaultBaseUrl = "https://cloud.feedly.com/"
+import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Convenience wrapper around FeedlyApi.
  * Returned types are raw API data objects.
  * All streams returned will be subscribed on Schedulers.io().
  */
-class FeedlyService(userToken: String) {
-    private val authHeader = "OAuth $userToken"
+class FeedlyService @Inject constructor() {
+    @Inject lateinit var feedlyApi: FeedlyApi
+    @Inject
+    @field:Named("feedlyUserToken") lateinit var feedlyUserToken: String
 
-    private val api: FeedlyApi = Retrofit.Builder()
-            .baseUrl(defaultBaseUrl)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-            .build()
-            .create(FeedlyApi::class.java)
+    private val authHeader by lazy { "OAuth $feedlyUserToken" }
 
     fun getCategories(): Observable<List<FeedlyApiCategory>> {
-        return api.categories(authHeader)
+        return feedlyApi.categories(authHeader)
     }
 
     fun getEntryIdsForCategory(streamId: String): Observable<FeedlyApiEntryIdsResponse> {
-        return api.entryIdsForStream(authHeader, streamId)
+        return feedlyApi.entryIdsForStream(authHeader, streamId)
     }
 
     fun getEntriesForIds(entryIds: List<String>): Observable<List<FeedlyApiEntry>> {
-        return api.entriesForIds(entryIds)
+        return feedlyApi.entriesForIds(entryIds)
                 .map {
                     it.map {
                         val entry = FeedlyService.extractUrl(it)
@@ -57,14 +48,10 @@ class FeedlyService(userToken: String) {
 
     fun markAsRead(entryIds: List<String>): Completable {
         val req = FeedlyApiMarkerRequest("markAsRead", "entries", entryIds)
-        return api.mark(authHeader, req)
+        return feedlyApi.mark(authHeader, req)
     }
 
     companion object {
-        fun readTokenFromResources(resources: Resources): String {
-            return resources.getString(R.string.feedly_token)
-        }
-
         private fun findUrlInContent(content: String): String? {
             // Look for <img> tags in file with src attrs.
             // BUG: src must be on same line with img tag.

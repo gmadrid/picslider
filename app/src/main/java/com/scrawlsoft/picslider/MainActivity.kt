@@ -1,6 +1,5 @@
 package com.scrawlsoft.picslider
 
-import android.accounts.AccountManager
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
@@ -18,6 +17,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 
 /*
@@ -26,7 +26,6 @@ import kotlinx.android.synthetic.main.activity_main.*
  * - better looking buttons
  * - volume controls
  * - save image to Dropbox, converting to _1280 if possible.
- * - when saving, use _1280 version.
  * - pre-load images.
  *   - don't overfill cache
  *   - increase space available for disk cache.
@@ -35,6 +34,8 @@ import kotlinx.android.synthetic.main.activity_main.*
  * - In FeedlyApi, change return types to Single where able.
  */
 class MainActivity : AppCompatActivity() {
+
+    @Inject lateinit var feedlyService: FeedlyService
 
     class ClosureCallback(private val successClosure: () -> Unit,
                           private val errorClosure: () -> Unit = {}) : Callback {
@@ -47,20 +48,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun upscaleTumblrUri(uriString: String): String {
+    private fun upscaleTumblrUri(uriString: String): String {
         val uri = Uri.parse(uriString)
-        if (uri.getHost().contains("tumblr")) {
+        if (uri.host.contains("tumblr")) {
             val re = Regex("_\\d?00.")
             val replaced = re.replace(uri.path, "_1280.")
 
             val newUri = uri.buildUpon().path(replaced).build()
-            println("The thing: $newUri")
             return newUri.toString()
         }
         return uriString
     }
 
-    fun downloadUri(uriString: String) {
+    private fun downloadUri(uriString: String) {
         val uri = upscaleTumblrUri(uriString)
         val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val req = DownloadManager.Request(Uri.parse(uri))
@@ -72,28 +72,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        (application as PicSliderApp).appComponent.inject(this)
+
         setContentView(R.layout.activity_main)
-
-        val dropboxId = resources.getString(R.string.dropbox_app_id)
-        val dropboxSecret = resources.getString(R.string.dropbox_app_secret)
-
-
-        val acctMgr = AccountManager.get(this)
-        val accts = acctMgr.getAccountsByType("dropbox")
-        println(accts)
-        val options = Bundle()
-        //acctMgr.getAuthToken()
-
 
         // We have to load the context into Picasso before we can do anything with it.
         val picasso = Picasso.with(this)
         picasso.setIndicatorsEnabled(true)
 
-        // The debug version reads our tokens from local.properties with help from Gradle config.
-        val userToken = FeedlyService.readTokenFromResources(resources)
-        val service = FeedlyService(userToken)
-
-        val browser = StreamBrowser(service, prev_button.clicks(), next_button.clicks())
+        val browser = StreamBrowser(feedlyService, prev_button.clicks(), next_button.clicks())
         browser.currentEntry
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -101,7 +88,7 @@ class MainActivity : AppCompatActivity() {
                     picasso().load(it.url)
                             .placeholder(R.drawable.loading_icon)
                             .into(main_image, ClosureCallback(successClosure = {
-                                service.markAsRead(entryId)
+                                feedlyService.markAsRead(entryId)
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribeBy(onError = { err ->
                                             println(err.toString())

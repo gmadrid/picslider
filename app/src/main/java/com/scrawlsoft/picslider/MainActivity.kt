@@ -87,23 +87,22 @@ class MainActivity : AppCompatActivity() {
                     val entryId = it.id
                     picasso().load(it.url)
                             .placeholder(R.drawable.loading_icon)
-                            .into(main_image, ClosureCallback(successClosure = {
-                                feedlyService.markAsRead(entryId)
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribeBy(onError = { err ->
-                                            println(err.toString())
-                                            Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_LONG).show()
-                                        }, onComplete = {
-                                            Toast.makeText(this, "Marked as read.", Toast.LENGTH_SHORT).show()
-                                        })
-
-                            }, errorClosure = {
-                                Observable.just("Failed to load image")
-                                        .subscribeOn(AndroidSchedulers.mainThread())
-                                        .subscribe {
-                                            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-                                        }
-                            }))
+                            .into(main_image, ClosureCallback(
+                                    successClosure = {
+                                        feedlyService.markAsRead(entryId)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeBy(onError = { err ->
+                                                    println(err.toString())
+                                                    Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_LONG).show()
+                                                })
+                                    },
+                                    errorClosure = {
+                                        Observable.just("Failed to load image")
+                                                .subscribeOn(AndroidSchedulers.mainThread())
+                                                .subscribe {
+                                                    Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                                                }
+                                    }))
                 }
 
         browser.hasPrev.subscribe(prev_button.enabled())

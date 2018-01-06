@@ -10,8 +10,3 @@ fun <T : Any> nonNullResult(value: T?, e: Exception = Exception()): Result<T, Ex
         Result.Success(value)
     }
 }
-
-fun picasso(): Picasso {
-    return Picasso.with(null)
-}
-

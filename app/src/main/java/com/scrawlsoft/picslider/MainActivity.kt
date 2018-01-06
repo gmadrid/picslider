@@ -10,8 +10,7 @@ import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.view.enabled
 import com.scrawlsoft.picslider.feedly.FeedlyService
-import com.scrawlsoft.picslider.utils.picasso
-import com.squareup.picasso.Callback
+import com.scrawlsoft.picslider.images.ClosureCallback
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
@@ -41,19 +40,9 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var feedlyService: FeedlyService
+    @Inject lateinit var picasso: Picasso
 
     private val volumeSubject = PublishSubject.create<Int>()
-
-    class ClosureCallback(private val successClosure: () -> Unit,
-                          private val errorClosure: () -> Unit = {}) : Callback {
-        override fun onSuccess() {
-            successClosure()
-        }
-
-        override fun onError() {
-            errorClosure()
-        }
-    }
 
     private fun upscaleTumblrUri(uriString: String): String {
         val uri = Uri.parse(uriString)
@@ -105,9 +94,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // We have to load the context into Picasso before we can do anything with it.
-        val picasso = Picasso.with(this)
-        picasso.setIndicatorsEnabled(true)
-
+        // TODO: DELETE ME
+//        val picasso = Picasso.with(this)
+//        picasso.setIndicatorsEnabled(true)
 
         val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
         val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
@@ -119,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 .bindToLifecycle(this)
                 .subscribe {
                     val entryId = it.id
-                    picasso().load(it.url)
+                    picasso.load(it.url)
                             .placeholder(R.drawable.loading_icon)
                             .into(main_image, ClosureCallback(
                                     successClosure = {

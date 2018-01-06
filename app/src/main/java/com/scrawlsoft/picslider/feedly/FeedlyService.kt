@@ -1,6 +1,6 @@
 package com.scrawlsoft.picslider.feedly
 
-import com.scrawlsoft.picslider.utils.picasso
+import com.squareup.picasso.Picasso
 import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -13,6 +13,7 @@ import javax.inject.Named
  */
 class FeedlyService @Inject constructor() {
     @Inject lateinit var feedlyApi: FeedlyApi
+    @Inject lateinit var picasso: Picasso
     @Inject
     @field:Named("feedlyUserToken") lateinit var feedlyUserToken: String
 
@@ -30,13 +31,12 @@ class FeedlyService @Inject constructor() {
         return feedlyApi.entriesForIds(entryIds)
                 .map {
                     it.map {
+                        // TODO: Use that cool apply() thing here.
                         val entry = FeedlyService.extractUrl(it)
-                        if (entry.url != null) {
-                            // Pre-fetch the image data.
-                            // TODO: move this after the filter call.
-                            picasso().load(entry.url).fetch()
-                            // TODO: consider caching in reverse order.
-                        }
+                        // Pre-fetch the image data.
+                        // TODO: move this after the filter call.
+                        // TODO: consider caching in reverse order.
+                        if (entry.url != null) picasso.load(entry.url).fetch()
                         entry
                     }.filter { it.url != null }
                 }

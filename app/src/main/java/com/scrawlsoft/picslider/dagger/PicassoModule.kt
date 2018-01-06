@@ -13,7 +13,9 @@ class PicassoModule {
     @Provides
     @Singleton
     fun providePicasso(context: Context): Picasso {
-        return Picasso.with(context)
+        return Picasso.with(context).apply {
+            setIndicatorsEnabled(true)
+        }
     }
 
     @Provides

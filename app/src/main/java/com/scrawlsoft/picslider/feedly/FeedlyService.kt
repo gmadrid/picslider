@@ -31,13 +31,11 @@ class FeedlyService @Inject constructor() {
         return feedlyApi.entriesForIds(entryIds)
                 .map {
                     it.map {
-                        // TODO: Use that cool apply() thing here.
-                        val entry = FeedlyService.extractUrl(it)
-                        // Pre-fetch the image data.
                         // TODO: move this after the filter call.
                         // TODO: consider caching in reverse order.
-                        if (entry.url != null) picasso.load(entry.url).fetch()
-                        entry
+                        FeedlyService.extractUrl(it).also {
+                            picasso.load(it.url).fetch()
+                        }
                     }.filter { it.url != null }
                 }
     }

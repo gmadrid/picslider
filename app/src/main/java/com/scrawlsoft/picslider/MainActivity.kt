@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.KeyEvent
 import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.view.enabled
@@ -12,10 +13,12 @@ import com.scrawlsoft.picslider.feedly.FeedlyService
 import com.scrawlsoft.picslider.utils.picasso
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
@@ -35,6 +38,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var feedlyService: FeedlyService
+
+    private val volumeSubject = PublishSubject.create<Int>()
 
     class ClosureCallback(private val successClosure: () -> Unit,
                           private val errorClosure: () -> Unit = {}) : Callback {
@@ -68,6 +73,27 @@ class MainActivity : AppCompatActivity() {
         dm.enqueue(req)
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val action = event.getAction()
+        val keyCode = event.getKeyCode()
+        return when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                if (action == KeyEvent.ACTION_DOWN) {
+                    volumeSubject.onNext(KeyEvent.KEYCODE_VOLUME_UP)
+                }
+                true
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                if (action == KeyEvent.ACTION_DOWN) {
+                    volumeSubject.onNext(KeyEvent.KEYCODE_VOLUME_DOWN)
+                }
+                true
+            }
+            else -> super.dispatchKeyEvent(event)
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -79,9 +105,15 @@ class MainActivity : AppCompatActivity() {
         val picasso = Picasso.with(this)
         picasso.setIndicatorsEnabled(true)
 
-        val browser = StreamBrowser(feedlyService, prev_button.clicks(), next_button.clicks())
+
+        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
+        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
+        val prevStream = Observable.merge(volPrev, prev_button.clicks())
+        val nextStream = Observable.merge(volNext, prev_button.clicks())
+        val browser = StreamBrowser(feedlyService, prevStream, nextStream)
         browser.currentEntry
                 .observeOn(AndroidSchedulers.mainThread())
+                .bindToLifecycle(this)
                 .subscribe {
                     val entryId = it.id
                     picasso().load(it.url)
@@ -104,10 +136,11 @@ class MainActivity : AppCompatActivity() {
                                     }))
                 }
 
-        browser.hasPrev.subscribe(prev_button.enabled())
-        browser.hasNext.subscribe(next_button.enabled())
+        browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())
+        browser.hasNext.bindToLifecycle(this).subscribe(next_button.enabled())
 
         save_button.clicks().withLatestFrom(browser.currentEntry) { _, entry -> entry }
+                .bindToLifecycle(this)
                 .subscribe {
                     if (it.url != null) {
                         downloadUri(it.url)

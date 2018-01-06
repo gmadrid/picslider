@@ -25,11 +25,14 @@ import javax.inject.Inject
 
 /*
  * TODO
+ * - disposeBins everywhere
+ * - onError everywhere
  * - continuation
  * - better looking buttons
- * - volume controls
  * - save image to Dropbox, converting to _1280 if possible.
  * - pre-load images.
+ *   - make sure next images are in memory
+ *   - pre-scale images in cache
  *   - don't overfill cache
  *   - increase space available for disk cache.
  * - animate moving to new image

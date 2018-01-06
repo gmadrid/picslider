@@ -11,19 +11,20 @@ class StreamBrowser(private val service: FeedlyService,
                     nextInput: Observable<Unit>) {
 
     private val entries = service.getCategories()
-            .flatMap { Observable.fromIterable(it) }
+            .flatMapObservable { Observable.fromIterable(it) }
             .filter { it.label == "Porn" }
+            .firstOrError()
             .flatMap { service.getEntryIdsForCategory(it.id) }
             .flatMap { service.getEntriesForIds(it.ids) }
 
     private val currentIndex = BehaviorSubject.createDefault(0)
 
     val currentEntry: Observable<FeedlyApiEntry> =
-            Observable.combineLatest(currentIndex, entries, BiFunction { idx, lst -> lst[idx] })
+            Observable.combineLatest(currentIndex, entries.toObservable(), BiFunction { idx, lst -> lst[idx] })
 
     val hasPrev = currentIndex.map { it > 0 }
     val hasNext =
-            Observable.combineLatest(currentIndex, entries, BiFunction<Int, List<FeedlyApiEntry>, Boolean> { idx, lst ->
+            Observable.combineLatest(currentIndex, entries.toObservable(), BiFunction<Int, List<FeedlyApiEntry>, Boolean> { idx, lst ->
                 idx < lst.size - 1
             })
 

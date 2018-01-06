@@ -2,7 +2,7 @@ package com.scrawlsoft.picslider.feedly
 
 import com.scrawlsoft.picslider.utils.picasso
 import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -18,15 +18,15 @@ class FeedlyService @Inject constructor() {
 
     private val authHeader by lazy { "OAuth $feedlyUserToken" }
 
-    fun getCategories(): Observable<List<FeedlyApiCategory>> {
+    fun getCategories(): Single<List<FeedlyApiCategory>> {
         return feedlyApi.categories(authHeader)
     }
 
-    fun getEntryIdsForCategory(streamId: String): Observable<FeedlyApiEntryIdsResponse> {
+    fun getEntryIdsForCategory(streamId: String): Single<FeedlyApiEntryIdsResponse> {
         return feedlyApi.entryIdsForStream(authHeader, streamId)
     }
 
-    fun getEntriesForIds(entryIds: List<String>): Observable<List<FeedlyApiEntry>> {
+    fun getEntriesForIds(entryIds: List<String>): Single<List<FeedlyApiEntry>> {
         return feedlyApi.entriesForIds(entryIds)
                 .map {
                     it.map {

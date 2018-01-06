@@ -1,7 +1,7 @@
 package com.scrawlsoft.picslider.feedly
 
 import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.Single
 import retrofit2.http.*
 
 data class FeedlyApiCategory(val id: String, val label: String, val description: String?)
@@ -32,17 +32,17 @@ data class FeedlyApiMarkerRequest(val action: String, val type: String, val entr
 interface FeedlyApi {
     @GET("/v3/categories")
     fun categories(@Header("Authorization") authHeader: String)
-            : Observable<List<FeedlyApiCategory>>
+            : Single<List<FeedlyApiCategory>>
 
     @GET("/v3/streams/ids")
     fun entryIdsForStream(@Header("Authorization") authHeader: String,
                           @Query("streamId") streamId: String,
                           @Query("unreadOnly") unreadOnly: Boolean = true,
                           @Query("count") count: Int = 100)
-            : Observable<FeedlyApiEntryIdsResponse>
+            : Single<FeedlyApiEntryIdsResponse>
 
     @POST("/v3/entries/.mget")
-    fun entriesForIds(@Body body: List<String>): Observable<List<FeedlyApiEntry>>
+    fun entriesForIds(@Body body: List<String>): Single<List<FeedlyApiEntry>>
 
     @POST("/v3/markers")
     fun mark(@Header("Authorization") authHeader: String,

@@ -31,7 +31,6 @@ import javax.inject.Inject
  *   - increase space available for disk cache.
  * - animate moving to new image
  * - swipe to new image
- * - In FeedlyApi, change return types to Single where able.
  */
 class MainActivity : AppCompatActivity() {
 

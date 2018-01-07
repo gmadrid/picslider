@@ -35,6 +35,7 @@ class FeedlyService @Inject constructor() {
                             if (uri != null) acc + FeedlyApiEntry(jsonEntry.id, uri) else acc
                         })
                     }
+                    .doAfterSuccess { println("SUCCESSFULLY GOT ENTRIES") }
 
     fun markAsRead(entryId: String): Completable = markAsRead(listOf(entryId))
 

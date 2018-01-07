@@ -10,7 +10,7 @@ class StreamBrowser(private val service: FeedlyService,
                     prevInput: Observable<Unit>,
                     nextInput: Observable<Unit>) {
 
-    private val entries = service.getCategories()
+    val entries = service.getCategories()
             .flatMapObservable { Observable.fromIterable(it) }
             .filter { it.label == "Porn" }
             .firstOrError()
@@ -37,4 +37,5 @@ class StreamBrowser(private val service: FeedlyService,
                 .filter { it }
                 .subscribe { currentIndex.onNext(currentIndex.value - 1) }
     }
+
 }

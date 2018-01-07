@@ -3,7 +3,6 @@ package com.scrawlsoft.picslider
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
-import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.view.enabled
 import com.scrawlsoft.picslider.feedly.FeedlyService
@@ -11,8 +10,6 @@ import com.scrawlsoft.picslider.images.DownloadMgr
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
@@ -75,22 +72,24 @@ class MainActivity : AppCompatActivity() {
         val prevStream = Observable.merge(volPrev, prev_button.clicks())
         val nextStream = Observable.merge(volNext, next_button.clicks())
         val browser = StreamBrowser(feedlyService, prevStream, nextStream)
-        browser.currentEntry
-                .observeOn(AndroidSchedulers.mainThread())
-                .bindToLifecycle(this)
-                .subscribe {
-                    val entryId = it.id
-                    val uri = it.uri
-                    imageDisplay.displayIntoView(uri, main_image)
-                            .andThen(feedlyService.markAsRead(entryId))
-                            .observeOn(AndroidSchedulers.mainThread())
-                            // TODO: Figure out now to get rid of nested subscribes.
-                            .subscribeBy(onError = { _ ->
-                                Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_SHORT).show()
-                            }) {
-                                //Toast.makeText(this, "Marked as read", Toast.LENGTH_SHORT).show()
-                            }
-                }
+        main_pager.adapter = ImageAdapter(this, browser.entries, imageDisplay)
+
+//        browser.currentEntry
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .bindToLifecycle(this)
+//                .subscribe {
+//                    val entryId = it.id
+//                    val uri = it.uri
+//                    imageDisplay.displayIntoView(uri, main_image)
+//                            .andThen(feedlyService.markAsRead(entryId))
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            // TODO: Figure out now to get rid of nested subscribes.
+//                            .subscribeBy(onError = { _ ->
+//                                Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_SHORT).show()
+//                            }) {
+//                                //Toast.makeText(this, "Marked as read", Toast.LENGTH_SHORT).show()
+//                            }
+//                }
 
         browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())
         browser.hasNext.bindToLifecycle(this).subscribe(next_button.enabled())

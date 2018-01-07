@@ -1,7 +1,5 @@
 package com.scrawlsoft.picslider
 
-import android.app.DownloadManager
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
@@ -44,28 +42,6 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var imageDisplay: ImageDisplayAndCache
 
     private val volumeSubject = PublishSubject.create<Int>()
-
-    private fun upscaleTumblrUri(uriString: String): String {
-        val uri = Uri.parse(uriString)
-        if (uri.host.contains("tumblr")) {
-            // TODO: should I escape this '.'?
-            val re = Regex("_\\d?00.")
-            val replaced = re.replace(uri.path, "_1280.")
-
-            val newUri = uri.buildUpon().path(replaced).build()
-            return newUri.toString()
-        }
-        return uriString
-    }
-
-    // TODO: pass Uri here instead of String
-    private fun downloadUri(uriString: String) {
-        val uri = upscaleTumblrUri(uriString)
-        val req = DownloadManager.Request(Uri.parse(uri))
-        req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-        downloader.enqueue(req)
-    }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val action = event.action
@@ -122,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         save_button.clicks().withLatestFrom(browser.currentEntry) { _, entry -> entry }
                 .bindToLifecycle(this)
                 .subscribe {
-                    downloadUri(it.uri.toString())
+                    downloader.downloadUri(it.uri.toString())
                 }
     }
 }

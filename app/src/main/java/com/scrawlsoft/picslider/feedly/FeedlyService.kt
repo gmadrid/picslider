@@ -1,7 +1,6 @@
 package com.scrawlsoft.picslider.feedly
 
 import android.net.Uri
-import com.squareup.picasso.Picasso
 import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -14,7 +13,7 @@ import javax.inject.Named
  */
 class FeedlyService @Inject constructor() {
     @Inject lateinit var feedlyApi: FeedlyApi
-    @Inject lateinit var picasso: Picasso
+
     @Inject
     @field:Named("feedlyUserToken") lateinit var feedlyUserToken: String
 
@@ -65,7 +64,7 @@ class FeedlyService @Inject constructor() {
         }
 
         private fun extractUri(entry: FeedlyApiJSONEntry): Uri? {
-            var url = entry.visual?.url ?: findUrlInContent(entry.summary?.content ?: "")
+            val url = entry.visual?.url ?: findUrlInContent(entry.summary?.content ?: "")
             return url?.let { Uri.parse(url) }
         }
     }

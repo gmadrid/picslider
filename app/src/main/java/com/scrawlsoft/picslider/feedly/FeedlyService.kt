@@ -1,5 +1,6 @@
 package com.scrawlsoft.picslider.feedly
 
+import android.net.Uri
 import com.squareup.picasso.Picasso
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -29,14 +30,14 @@ class FeedlyService @Inject constructor() {
 
     fun getEntriesForIds(entryIds: List<String>): Single<List<FeedlyApiEntry>> {
         return feedlyApi.entriesForIds(entryIds)
+                // TODO: put the image caching back in
                 .map {
-                    it.map {
-                        // TODO: move this after the filter call.
-                        // TODO: consider caching in reverse order.
-                        FeedlyService.extractUrl(it).also {
-                            picasso.load(it.url).fetch()
-                        }
-                    }.filter { it.url != null }
+                    // Convert from JSON rep to FeedlyApiEntry, removing entries without
+                    // uris at the same time.
+                    it.fold(emptyList<FeedlyApiEntry>(), { acc, jsonEntry ->
+                        val uri = FeedlyService.extractUri(jsonEntry)
+                        if (uri != null) acc + FeedlyApiEntry(jsonEntry.id, uri) else acc
+                    })
                 }
     }
 
@@ -70,13 +71,9 @@ class FeedlyService @Inject constructor() {
             return null
         }
 
-        private fun extractUrl(entry: FeedlyApiEntry): FeedlyApiEntry {
-            var url = entry.visual?.url
-            if (url == null) {
-                url = findUrlInContent(entry.summary?.content ?: "")
-            }
-
-            return FeedlyApiEntry(entry.id, url, entry.visual, entry.summary)
+        private fun extractUri(entry: FeedlyApiJSONEntry): Uri? {
+            var url = entry.visual?.url ?: findUrlInContent(entry.summary?.content ?: "")
+            return url?.let { Uri.parse(url) }
         }
     }
 }

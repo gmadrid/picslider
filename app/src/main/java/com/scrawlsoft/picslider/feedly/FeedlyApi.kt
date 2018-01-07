@@ -1,12 +1,15 @@
 package com.scrawlsoft.picslider.feedly
 
+import android.net.Uri
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
 
 data class FeedlyApiCategory(val id: String, val label: String, val description: String?)
 data class FeedlyApiEntryIdsResponse(val ids: List<String>, val continuation: String?)
-data class FeedlyApiEntry(
+data class FeedlyApiEntry(val id: String, val uri: Uri)
+
+data class FeedlyApiJSONEntry(
         val id: String,
         val url: String?,
         internal val visual: FeedlyEntryVisual?,
@@ -42,7 +45,7 @@ interface FeedlyApi {
             : Single<FeedlyApiEntryIdsResponse>
 
     @POST("/v3/entries/.mget")
-    fun entriesForIds(@Body body: List<String>): Single<List<FeedlyApiEntry>>
+    fun entriesForIds(@Body body: List<String>): Single<List<FeedlyApiJSONEntry>>
 
     @POST("/v3/markers")
     fun mark(@Header("Authorization") authHeader: String,

@@ -23,6 +23,7 @@ import javax.inject.Inject
 
 /*
  * TODO
+ * - put some caching back in
  * - disposeBins everywhere
  * - onError everywhere
  * - continuation
@@ -102,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 .bindToLifecycle(this)
                 .subscribe {
                     val entryId = it.id
-                    val uri = Uri.parse(it.url)
+                    val uri = it.uri
                     imageDisplay.displayIntoView(uri, main_image)
                             .andThen(feedlyService.markAsRead(entryId))
                             .observeOn(AndroidSchedulers.mainThread())
@@ -120,9 +121,7 @@ class MainActivity : AppCompatActivity() {
         save_button.clicks().withLatestFrom(browser.currentEntry) { _, entry -> entry }
                 .bindToLifecycle(this)
                 .subscribe {
-                    if (it.url != null) {
-                        downloadUri(it.url)
-                    }
+                    downloadUri(it.uri.toString())
                 }
     }
 }

@@ -12,7 +12,6 @@ import javax.inject.Singleton
 @Singleton
 class DownloaderModule {
     @Provides
-    fun provideDownloadMgr(context: Context): DownloadMgr {
-        return DownloadMgrImpl(context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager)
-    }
+    fun provideDownloadMgr(context: Context): DownloadMgr =
+            DownloadMgrImpl(context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager)
 }

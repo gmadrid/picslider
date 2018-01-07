@@ -8,17 +8,15 @@ import io.reactivex.Completable
 
 class PicassoDisplayAndCache(private val picasso: Picasso) : ImageDisplayAndCache {
 
-    override fun displayIntoView(uri: Uri, imageView: ImageView): Completable {
-        return Completable.create { subscriber ->
-            picasso.load(uri).into(imageView,
-                    CompletableCallback(subscriber, Exception("Picasso failed to load: $uri")))
-        }
-    }
+    override fun displayIntoView(uri: Uri, imageView: ImageView): Completable =
+            Completable.create { subscriber ->
+                picasso.load(uri).into(imageView,
+                        CompletableCallback(subscriber, Exception("Picasso failed to load: $uri")))
+            }
 
-    override fun loadIntoCache(uri: Uri): Completable {
-        return Completable.create { subscriber ->
-            picasso.load(uri).fetch(
-                    CompletableCallback(subscriber, Exception("Failed to fetch: $uri")))
-        }
-    }
+    override fun loadIntoCache(uri: Uri): Completable =
+            Completable.create { subscriber ->
+                picasso.load(uri).fetch(
+                        CompletableCallback(subscriber, Exception("Failed to fetch: $uri")))
+            }
 }

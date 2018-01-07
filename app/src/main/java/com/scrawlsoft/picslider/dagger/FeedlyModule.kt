@@ -16,13 +16,11 @@ class FeedlyModule {
 
     @Provides
     @Named("feedlyUserToken")
-    fun provideFeedlyUserToken(resources: Resources): String {
-        return resources.getString(R.string.feedly_token)
-    }
+    fun provideFeedlyUserToken(resources: Resources): String =
+            resources.getString(R.string.feedly_token)
 
     @Provides
     @Singleton
-    fun provideFeedlyApi(builder: Retrofit.Builder): FeedlyApi {
-        return builder.baseUrl(defaultBaseUrl).build().create(FeedlyApi::class.java)
-    }
+    fun provideFeedlyApi(builder: Retrofit.Builder): FeedlyApi =
+            builder.baseUrl(defaultBaseUrl).build().create(FeedlyApi::class.java)
 }

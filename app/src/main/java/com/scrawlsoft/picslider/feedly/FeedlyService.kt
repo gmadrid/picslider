@@ -20,35 +20,28 @@ class FeedlyService @Inject constructor() {
 
     private val authHeader by lazy { "OAuth $feedlyUserToken" }
 
-    fun getCategories(): Single<List<FeedlyApiCategory>> {
-        return feedlyApi.categories(authHeader)
-    }
+    fun getCategories(): Single<List<FeedlyApiCategory>> = feedlyApi.categories(authHeader)
 
-    fun getEntryIdsForCategory(streamId: String): Single<FeedlyApiEntryIdsResponse> {
-        return feedlyApi.entryIdsForStream(authHeader, streamId)
-    }
+    fun getEntryIdsForCategory(streamId: String): Single<FeedlyApiEntryIdsResponse> =
+            feedlyApi.entryIdsForStream(authHeader, streamId)
 
-    fun getEntriesForIds(entryIds: List<String>): Single<List<FeedlyApiEntry>> {
-        return feedlyApi.entriesForIds(entryIds)
-                // TODO: put the image caching back in
-                .map {
-                    // Convert from JSON rep to FeedlyApiEntry, removing entries without
-                    // uris at the same time.
-                    it.fold(emptyList<FeedlyApiEntry>(), { acc, jsonEntry ->
-                        val uri = FeedlyService.extractUri(jsonEntry)
-                        if (uri != null) acc + FeedlyApiEntry(jsonEntry.id, uri) else acc
-                    })
-                }
-    }
+    fun getEntriesForIds(entryIds: List<String>): Single<List<FeedlyApiEntry>> =
+            feedlyApi.entriesForIds(entryIds)
+                    // TODO: put the image caching back in
+                    .map {
+                        // Convert from JSON rep to FeedlyApiEntry, removing entries without
+                        // uris at the same time.
+                        it.fold(emptyList<FeedlyApiEntry>(), { acc, jsonEntry ->
+                            val uri = FeedlyService.extractUri(jsonEntry)
+                            if (uri != null) acc + FeedlyApiEntry(jsonEntry.id, uri) else acc
+                        })
+                    }
 
-    fun markAsRead(entryId: String): Completable {
-        return markAsRead(listOf(entryId))
-    }
+    fun markAsRead(entryId: String): Completable = markAsRead(listOf(entryId))
 
-    fun markAsRead(entryIds: List<String>): Completable {
-        val req = FeedlyApiMarkerRequest("markAsRead", "entries", entryIds)
-        return feedlyApi.mark(authHeader, req)
-    }
+    fun markAsRead(entryIds: List<String>): Completable =
+            feedlyApi.mark(authHeader,
+                    FeedlyApiMarkerRequest("markAsRead", "entries", entryIds))
 
     companion object {
         private fun findUrlInContent(content: String): String? {

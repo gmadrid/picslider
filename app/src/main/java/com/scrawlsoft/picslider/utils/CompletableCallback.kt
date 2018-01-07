@@ -7,11 +7,6 @@ class CompletableCallback(private val subscriber: CompletableEmitter,
                           private val e: Throwable)
     : Callback {
 
-    override fun onSuccess() {
-        subscriber.onComplete()
-    }
-
-    override fun onError() {
-        subscriber.onError(e)
-    }
+    override fun onSuccess() = subscriber.onComplete()
+    override fun onError() = subscriber.onError(e)
 }

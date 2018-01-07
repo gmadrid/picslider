@@ -12,15 +12,13 @@ import javax.inject.Singleton
 class PicassoModule {
     @Provides
     @Singleton
-    fun providePicasso(context: Context): Picasso {
-        return Picasso.with(context).apply {
-            setIndicatorsEnabled(true)
-        }
-    }
+    fun providePicasso(context: Context): Picasso =
+            Picasso.with(context).apply {
+                setIndicatorsEnabled(true)
+            }
 
     @Provides
     @Singleton
-    fun provideImageDisplayAndCache(picasso: Picasso): ImageDisplayAndCache {
-        return PicassoDisplayAndCache(picasso)
-    }
+    fun provideImageDisplayAndCache(picasso: Picasso): ImageDisplayAndCache =
+            PicassoDisplayAndCache(picasso)
 }

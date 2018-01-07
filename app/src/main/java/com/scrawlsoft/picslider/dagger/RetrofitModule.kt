@@ -12,9 +12,9 @@ import javax.inject.Singleton
 class RetrofitModule {
     @Provides
     @Singleton
-    fun provideRetrofitBuilder(): Retrofit.Builder {
-        return Retrofit.Builder()
-                .addConverterFactory(MoshiConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-    }
+    fun provideRetrofitBuilder(): Retrofit.Builder =
+            Retrofit.Builder()
+                    .addConverterFactory(MoshiConverterFactory.create())
+                    .addCallAdapterFactory(
+                            RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
 }

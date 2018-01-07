@@ -1,7 +1,6 @@
 package com.scrawlsoft.picslider
 
 import android.app.DownloadManager
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -10,6 +9,7 @@ import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.view.enabled
 import com.scrawlsoft.picslider.feedly.FeedlyService
+import com.scrawlsoft.picslider.images.DownloadMgr
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
@@ -39,8 +39,8 @@ import javax.inject.Inject
  */
 class MainActivity : AppCompatActivity() {
 
+    @Inject lateinit var downloader: DownloadMgr
     @Inject lateinit var feedlyService: FeedlyService
-    //    @Inject lateinit var picasso: Picasso
     @Inject lateinit var imageDisplay: ImageDisplayAndCache
 
     private val volumeSubject = PublishSubject.create<Int>()
@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private fun upscaleTumblrUri(uriString: String): String {
         val uri = Uri.parse(uriString)
         if (uri.host.contains("tumblr")) {
+            // TODO: should I escape this '.'?
             val re = Regex("_\\d?00.")
             val replaced = re.replace(uri.path, "_1280.")
 
@@ -57,18 +58,18 @@ class MainActivity : AppCompatActivity() {
         return uriString
     }
 
+    // TODO: pass Uri here instead of String
     private fun downloadUri(uriString: String) {
         val uri = upscaleTumblrUri(uriString)
-        val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val req = DownloadManager.Request(Uri.parse(uri))
         req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
-        dm.enqueue(req)
+        downloader.enqueue(req)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val action = event.getAction()
-        val keyCode = event.getKeyCode()
+        val action = event.action
+        val keyCode = event.keyCode
         return when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 if (action == KeyEvent.ACTION_DOWN) {

@@ -7,6 +7,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [
     AppModule::class,
+    DownloaderModule::class,
     FeedlyModule::class,
     PicassoModule::class,
     RetrofitModule::class

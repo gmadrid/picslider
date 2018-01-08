@@ -8,6 +8,7 @@ interface ImageService {
     data class Entry(val id: String, val uri: URL)
 
     val categories: Single<List<Category>>
-    fun getEntryIdsForCategory(categoryId: String): Single<Pair<String?, List<String>>>
+    fun getEntryIdsForCategory(categoryId: String, continuation: String? = null)
+            : Single<Pair<String?, List<String>>>
     fun getEntriesForIds(entryIds: List<String>): Single<List<Entry>>
 }

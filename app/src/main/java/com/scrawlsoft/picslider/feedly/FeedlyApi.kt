@@ -41,7 +41,8 @@ interface FeedlyApi {
     fun entryIdsForStream(@Header("Authorization") authHeader: String,
                           @Query("streamId") streamId: String,
                           @Query("unreadOnly") unreadOnly: Boolean = true,
-                          @Query("count") count: Int = 100)
+                          @Query("count") count: Int = 100,
+                          @Query("continuation") continuation: String? = null)
             : Single<FeedlyApiEntryIdsResponse>
 
     @POST("/v3/entries/.mget")

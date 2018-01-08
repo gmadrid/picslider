@@ -7,8 +7,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 /**
- * Convenience wrapper around FeedlyApi.
- * Returned types are raw API data objects.
+ * An ImageService for the FeedlyApi.
  * All streams returned will be subscribed on Schedulers.io().
  */
 class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
@@ -25,8 +24,9 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
                         }
                     }
 
-    override fun getEntryIdsForCategory(categoryId: String): Single<Pair<String?, List<String>>> =
-            feedlyApi.entryIdsForStream(authHeader, categoryId)
+    override fun getEntryIdsForCategory(categoryId: String, continuation: String?)
+            : Single<Pair<String?, List<String>>> =
+            feedlyApi.entryIdsForStream(authHeader, categoryId, continuation = continuation)
                     .map { Pair(it.continuation, it.ids) }
 
     override fun getEntriesForIds(entryIds: List<String>): Single<List<ImageService.Entry>> {

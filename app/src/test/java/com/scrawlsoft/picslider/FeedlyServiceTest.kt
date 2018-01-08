@@ -32,7 +32,7 @@ class FeedlyServiceTest {
                     subscriber.onSuccess(cats)
                 }
 
-        override fun entryIdsForStream(authHeader: String, streamId: String, unreadOnly: Boolean, count: Int)
+        override fun entryIdsForStream(authHeader: String, streamId: String, unreadOnly: Boolean, count: Int, continuation: String?)
                 : Single<FeedlyApiEntryIdsResponse> {
             return Single.create<FeedlyApiEntryIdsResponse> { subscriber ->
                 if (theException != null) throw theException!!

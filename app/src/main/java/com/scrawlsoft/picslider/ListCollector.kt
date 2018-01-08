@@ -1,16 +1,36 @@
 package com.scrawlsoft.picslider
 
-import com.scrawlsoft.picslider.feedly.FeedlyApiEntry
-import com.scrawlsoft.picslider.feedly.FeedlyService
 import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
-import javax.inject.Inject
 
 /**
- * Exports a List<FeedlyEntry> and it's count.
+ * Exports a List<FeedlyEntry> and its count.
  * Manages getting more entries if required.
  */
-class ListCollector(feedlyService_: FeedlyService) {
+class ListCollector(private val imageService: ImageService) {
+
+    private val theCategory = imageService.categories
+            .flatMapObservable { Observable.fromIterable(it) }
+            .filter { category -> category.name == "Porn" }
+            .firstOrError()
+            .onErrorReturn { throw Exception("Category 'Porn' not found.") }
+
+    private val entryIdsResp = theCategory
+            .flatMap { category -> imageService.getEntryIdsForCategory(category.id) }
+            .cache()
+
+    val entries: Observable<List<ImageService.Entry>> = entryIdsResp
+            .flatMap { pair -> imageService.getEntriesForIds(pair.second) }
+            .toObservable()
+
+    private val continuation = entryIdsResp.flatMapObservable {
+        Observable.just("")
+    }
+
+    val hasContinuation = continuation.map { it != "" }
+
+    fun continueRequest() {}
+
+
 //    val feedlyService = feedlyService_
 //    val entries = BehaviorSubject.create<List<FeedlyApiEntry>>()
 //    val entryCount = entries.map { it.size }

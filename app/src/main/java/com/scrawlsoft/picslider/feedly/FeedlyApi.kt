@@ -6,7 +6,7 @@ import io.reactivex.Single
 import retrofit2.http.*
 
 data class FeedlyApiCategory(val id: String, val label: String, val description: String?)
-data class FeedlyApiEntryIdsResponse(val ids: List<String>, val continuation: String?)
+data class FeedlyApiEntryIdsResponse(val ids: List<String>, val continuation: String? = null)
 data class FeedlyApiEntry(val id: String, val uri: Uri)
 
 data class FeedlyApiJSONEntry(
@@ -45,7 +45,7 @@ interface FeedlyApi {
             : Single<FeedlyApiEntryIdsResponse>
 
     @POST("/v3/entries/.mget")
-    fun entriesForIds(@Body body: List<String>): Single<List<FeedlyApiJSONEntry>>
+    fun entriesForIds(@Body entryIds: List<String>): Single<List<FeedlyApiJSONEntry>>
 
     @POST("/v3/markers")
     fun mark(@Header("Authorization") authHeader: String,

@@ -1,6 +1,7 @@
 package com.scrawlsoft.picslider.feedly
 
 import android.net.Uri
+import com.scrawlsoft.picslider.ImageService
 import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -11,31 +12,46 @@ import javax.inject.Named
  * Returned types are raw API data objects.
  * All streams returned will be subscribed on Schedulers.io().
  */
-class FeedlyService @Inject constructor() {
-    @Inject lateinit var feedlyApi: FeedlyApi
-
-    @Inject
-    @field:Named("feedlyUserToken") lateinit var feedlyUserToken: String
+class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
+                                        @Named("feedlyUserToken") private val feedlyUserToken: String)
+    : ImageService {
 
     private val authHeader by lazy { "OAuth $feedlyUserToken" }
 
-    fun getCategories(): Single<List<FeedlyApiCategory>> = feedlyApi.categories(authHeader)
-
-    fun getEntryIdsForCategory(streamId: String): Single<FeedlyApiEntryIdsResponse> =
-            feedlyApi.entryIdsForStream(authHeader, streamId)
-
-    fun getEntriesForIds(entryIds: List<String>): Single<List<FeedlyApiEntry>> =
-            feedlyApi.entriesForIds(entryIds)
-                    // TODO: put the image caching back in
-                    .map {
-                        // Convert from JSON rep to FeedlyApiEntry, removing entries without
-                        // uris at the same time.
-                        it.fold(emptyList<FeedlyApiEntry>(), { acc, jsonEntry ->
-                            val uri = FeedlyService.extractUri(jsonEntry)
-                            if (uri != null) acc + FeedlyApiEntry(jsonEntry.id, uri) else acc
-                        })
+    override val categories: Single<List<ImageService.Category>> =
+            feedlyApi.categories(authHeader)
+                    .map { categories ->
+                        categories.map {
+                            ImageService.Category(it.id, it.label, it.description)
+                        }
                     }
-                    .doAfterSuccess { println("SUCCESSFULLY GOT ENTRIES") }
+
+    override fun getEntryIdsForCategory(streamId: String): Single<Pair<String?, List<String>>> =
+            feedlyApi.entryIdsForStream(authHeader, streamId)
+                    .map { Pair(it.continuation, it.ids) }
+
+    override fun getEntriesForIds(entryIds: List<String>): Single<List<ImageService.Entry>> {
+        return feedlyApi.entriesForIds(entryIds)
+                .map {
+                    it.fold(emptyList<ImageService.Entry>()) { acc, jsonEntry ->
+                        println("FOLDING")
+                        acc + ImageService.Entry(jsonEntry.id, Uri.parse(jsonEntry.visual?.url))
+                    }
+                }
+    }
+
+    //    fun getEntriesForIds(entryIds: List<String>): Single<List<FeedlyApiEntry>> =
+//            feedlyApi.entriesForIds(entryIds)
+//                    // TODO: put the image caching back in
+//                    .map {
+//                        // Convert from JSON rep to FeedlyApiEntry, removing entries without
+//                        // uris at the same time.
+//                        it.fold(emptyList<FeedlyApiEntry>(), { acc, jsonEntry ->
+//                            val uri = FeedlyService.extractUri(jsonEntry)
+//                            if (uri != null) acc + FeedlyApiEntry(jsonEntry.id, uri) else acc
+//                        })
+//                    }
+//                    .doAfterSuccess { println("SUCCESSFULLY GOT ENTRIES") }
 
     fun markAsRead(entryId: String): Completable = markAsRead(listOf(entryId))
 

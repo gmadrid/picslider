@@ -67,12 +67,12 @@ class MainActivity : AppCompatActivity() {
         (application as PicSliderApp).appComponent.inject(this)
         setContentView(R.layout.activity_main)
 
-        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
-        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
-        val prevStream = Observable.merge(volPrev, prev_button.clicks())
-        val nextStream = Observable.merge(volNext, next_button.clicks())
-        val browser = StreamBrowser(feedlyService, prevStream, nextStream)
-        main_pager.adapter = ImageAdapter(this, browser.entries, imageDisplay)
+//        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
+//        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
+//        val prevStream = Observable.merge(volPrev, prev_button.clicks())
+//        val nextStream = Observable.merge(volNext, next_button.clicks())
+//        val browser = StreamBrowser(feedlyService, prevStream, nextStream)
+//        main_pager.adapter = ImagePageAdapter(this, browser.entries, imageDisplay)
 
 //        browser.currentEntry
 //                .observeOn(AndroidSchedulers.mainThread())
@@ -91,13 +91,13 @@ class MainActivity : AppCompatActivity() {
 //                            }
 //                }
 
-        browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())
-        browser.hasNext.bindToLifecycle(this).subscribe(next_button.enabled())
-
-        save_button.clicks().withLatestFrom(browser.currentEntry) { _, entry -> entry }
-                .bindToLifecycle(this)
-                .subscribe {
-                    downloader.downloadUri(it.uri.toString())
-                }
+//        browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())
+//        browser.hasNext.bindToLifecycle(this).subscribe(next_button.enabled())
+//
+//        save_button.clicks().withLatestFrom(browser.currentEntry) { _, entry -> entry }
+//                .bindToLifecycle(this)
+//                .subscribe {
+//                    downloader.downloadUri(it.uri.toString())
+//                }
     }
 }

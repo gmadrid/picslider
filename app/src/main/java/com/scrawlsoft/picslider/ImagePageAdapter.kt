@@ -10,9 +10,9 @@ import com.scrawlsoft.picslider.feedly.FeedlyApiEntry
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import io.reactivex.Single
 
-class ImageAdapter(private val context: Context,
-                   private val entries: Single<List<FeedlyApiEntry>>,
-                   private val thing: ImageDisplayAndCache)
+class ImagePageAdapter(private val context: Context,
+                       private val entries: Single<List<FeedlyApiEntry>>,
+                       private val thing: ImageDisplayAndCache)
     : PagerAdapter() {
     override fun getCount(): Int = entries.map { it.size }.blockingGet()
 

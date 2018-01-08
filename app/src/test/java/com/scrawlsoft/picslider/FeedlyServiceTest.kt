@@ -18,11 +18,12 @@ class FeedlyServiceTest {
         var theException: Throwable? = null
         var continuation: String? = null
         var entryIds: List<String> = listOf("e1", "e2", "e3", "e4")
-        var entryLookup = hashMapOf(
-                "e1" to FeedlyApiJSONEntry("e1", null, SimpleVisual("http://foobar.com/e1"), null),
-                "e2" to FeedlyApiJSONEntry("e2", null, SimpleVisual("http://foobar.com/e2"), null),
-                "e3" to FeedlyApiJSONEntry("e3", null, SimpleVisual("http://foobar.com/e3"), null),
-                "e4" to FeedlyApiJSONEntry("e4", null, null, null)
+        private var entryLookup = hashMapOf(
+                "e1" to FeedlyApiJSONEntry("e1", null, simpleVisual("http://foobar.com/e1"), null),
+                "e2" to FeedlyApiJSONEntry("e2", null, simpleVisual("http://foobar.com/e2"), null),
+                "e3" to FeedlyApiJSONEntry("e3", null, simpleVisual("http://foobar.com/e3"), null),
+                "missingUrl" to FeedlyApiJSONEntry("missingUrl", null, null, null),
+                "contentUrl" to FeedlyApiJSONEntry("contentUrl", null, null, fakeSummary("http://foobar.com/contentUrl"))
         )
 
         override fun categories(authHeader: String): Single<List<FeedlyApiCategory>> =
@@ -43,8 +44,15 @@ class FeedlyServiceTest {
             }
         }
 
-        fun SimpleVisual(url: String): FeedlyEntryVisual {
+        private fun simpleVisual(url: String): FeedlyEntryVisual {
             return FeedlyEntryVisual(url, 100, 100, "context-type")
+        }
+
+        private fun fakeSummary(url: String): FeedlyEntrySummary {
+            val str = "<p>Some text<p>\n" +
+                    "foobar<img src=\"$url\">\n" +
+                    "Sometrailingtext"
+            return FeedlyEntrySummary(str)
         }
 
         override fun entriesForIds(entryIds: List<String>): Single<List<FeedlyApiJSONEntry>> {
@@ -88,7 +96,7 @@ class FeedlyServiceTest {
         val feedlyUserToken = "userToken"
         val service = FeedlyService(api, feedlyUserToken)
 
-        var lst = service.categories.blockingGet()
+        val lst = service.categories.blockingGet()
         assertEquals(0, lst.size)
     }
 
@@ -150,13 +158,35 @@ class FeedlyServiceTest {
     fun `test entries for ids`() {
         val api = FakeApi()
         val service = FeedlyService(api, "feedlyUserToken")
-        val lst = service.getEntriesForIds(listOf("e1", "e2", "e3")).blockingGet()
+        val entryIds = listOf("e1", "e2", "e3")
+        val lst = service.getEntriesForIds(entryIds).blockingGet()
         assertEquals(3, lst.size)
+        entryIds.forEach { entryId ->
+            assertNotNull(lst.find { it.id == entryId })
+        }
     }
 
     @Test
     fun `test entry without url is skipped`() {
-        TODO("not implemented yet")
+        val api = FakeApi()
+        val service = FeedlyService(api, "feedlyUserToken")
+        val lst = service.getEntriesForIds(listOf("e1", "e2", "e3", "missingUrl")).blockingGet()
+        assertEquals(3, lst.size)
+        listOf("e1", "e2", "e3").forEach { entryId ->
+            assertNotNull(lst.find { it.id == entryId })
+        }
+    }
+
+    @Test
+    fun `test entry gets url from content`() {
+        val api = FakeApi()
+        val service = FeedlyService(api, "feedlyUserToken")
+        val entryIds = listOf("e1", "e2", "e3", "contentUrl")
+        val lst = service.getEntriesForIds(entryIds).blockingGet()
+        assertEquals(4, lst.size)
+        entryIds.forEach { entryId ->
+            assertNotNull(lst.find { it.id == entryId })
+        }
     }
 
     @Test

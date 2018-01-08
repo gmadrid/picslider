@@ -1,12 +1,11 @@
 package com.scrawlsoft.picslider
 
-import android.net.Uri
-import io.reactivex.Observable
 import io.reactivex.Single
+import java.net.URL
 
 interface ImageService {
     data class Category(val id: String, val name: String, val description: String?)
-    data class Entry(val id: String, val uri: Uri)
+    data class Entry(val id: String, val uri: URL)
 
     val categories: Single<List<Category>>
     fun getEntryIdsForCategory(categoryId: String): Single<Pair<String?, List<String>>>

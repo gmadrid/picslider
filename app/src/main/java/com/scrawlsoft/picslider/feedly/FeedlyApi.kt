@@ -1,13 +1,13 @@
 package com.scrawlsoft.picslider.feedly
 
-import android.net.Uri
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
+import java.net.URL
 
 data class FeedlyApiCategory(val id: String, val label: String, val description: String?)
 data class FeedlyApiEntryIdsResponse(val ids: List<String>, val continuation: String? = null)
-data class FeedlyApiEntry(val id: String, val uri: Uri)
+data class FeedlyApiEntry(val id: String, val uri: URL)
 
 data class FeedlyApiJSONEntry(
         val id: String,

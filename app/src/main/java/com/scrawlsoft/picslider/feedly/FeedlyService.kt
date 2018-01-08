@@ -1,9 +1,8 @@
 package com.scrawlsoft.picslider.feedly
 
-import android.net.Uri
 import com.scrawlsoft.picslider.ImageService
-import io.reactivex.Completable
 import io.reactivex.Single
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -26,38 +25,27 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
                         }
                     }
 
-    override fun getEntryIdsForCategory(streamId: String): Single<Pair<String?, List<String>>> =
-            feedlyApi.entryIdsForStream(authHeader, streamId)
+    override fun getEntryIdsForCategory(categoryId: String): Single<Pair<String?, List<String>>> =
+            feedlyApi.entryIdsForStream(authHeader, categoryId)
                     .map { Pair(it.continuation, it.ids) }
 
     override fun getEntriesForIds(entryIds: List<String>): Single<List<ImageService.Entry>> {
         return feedlyApi.entriesForIds(entryIds)
                 .map {
+                    // Convert from JSON rep to FeedlyApiEntry, removing entries without
+                    // uris at the same time.
                     it.fold(emptyList<ImageService.Entry>()) { acc, jsonEntry ->
-                        println("FOLDING")
-                        acc + ImageService.Entry(jsonEntry.id, Uri.parse(jsonEntry.visual?.url))
+                        val uri = FeedlyService.extractUrl(jsonEntry)
+                        if (uri != null) acc + ImageService.Entry(jsonEntry.id, uri) else acc
                     }
                 }
     }
 
-    //    fun getEntriesForIds(entryIds: List<String>): Single<List<FeedlyApiEntry>> =
-//            feedlyApi.entriesForIds(entryIds)
-//                    // TODO: put the image caching back in
-//                    .map {
-//                        // Convert from JSON rep to FeedlyApiEntry, removing entries without
-//                        // uris at the same time.
-//                        it.fold(emptyList<FeedlyApiEntry>(), { acc, jsonEntry ->
-//                            val uri = FeedlyService.extractUri(jsonEntry)
-//                            if (uri != null) acc + FeedlyApiEntry(jsonEntry.id, uri) else acc
-//                        })
-//                    }
-//                    .doAfterSuccess { println("SUCCESSFULLY GOT ENTRIES") }
+//    fun markAsRead(entryId: String): Completable = markAsRead(listOf(entryId))
 
-    fun markAsRead(entryId: String): Completable = markAsRead(listOf(entryId))
-
-    fun markAsRead(entryIds: List<String>): Completable =
-            feedlyApi.mark(authHeader,
-                    FeedlyApiMarkerRequest("markAsRead", "entries", entryIds))
+//    fun markAsRead(entryIds: List<String>): Completable =
+//            feedlyApi.mark(authHeader,
+//                    FeedlyApiMarkerRequest("markAsRead", "entries", entryIds))
 
     companion object {
         private fun findUrlInContent(content: String): String? {
@@ -80,9 +68,15 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
             return null
         }
 
-        private fun extractUri(entry: FeedlyApiJSONEntry): Uri? {
+        private fun extractUrl(entry: FeedlyApiJSONEntry): URL? {
             val url = entry.visual?.url ?: findUrlInContent(entry.summary?.content ?: "")
-            return url?.let { Uri.parse(url) }
+            return url?.let {
+                try {
+                    URL(url)
+                } catch (e: Exception) {
+                    null
+                }
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.scrawlsoft.picslider.feedly
 
 import com.scrawlsoft.picslider.ImageService
+import com.scrawlsoft.picslider.NO_CONTINUATION
 import io.reactivex.Single
 import java.net.URL
 import javax.inject.Inject
@@ -25,9 +26,9 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
                     }
 
     override fun getEntryIdsForCategory(categoryId: String, continuation: String?)
-            : Single<Pair<String?, List<String>>> =
+            : Single<Pair<String, List<String>>> =
             feedlyApi.entryIdsForStream(authHeader, categoryId, continuation = continuation)
-                    .map { Pair(it.continuation, it.ids) }
+                    .map { resp -> Pair(resp.continuation ?: NO_CONTINUATION, resp.ids) }
 
     override fun getEntriesForIds(entryIds: List<String>): Single<List<ImageService.Entry>> {
         return feedlyApi.entriesForIds(entryIds)

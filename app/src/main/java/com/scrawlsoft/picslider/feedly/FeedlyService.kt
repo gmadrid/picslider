@@ -31,6 +31,7 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
             : Single<ImageService.EntryIdsResponse> =
             feedlyApi.entryIdsForStream(authHeader, categoryId, continuation = continuation.apiString)
                     .map { resp ->
+                        println("continuation: ${resp.continuation}")
                         ImageService.EntryIdsResponse(
                                 Continuation.fromString(resp.continuation), resp.ids)
                     }

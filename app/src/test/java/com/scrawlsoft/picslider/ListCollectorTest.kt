@@ -125,6 +125,7 @@ class ListCollectorTest {
 
     @Test
     fun foobar() {
+        val foo : List<Int> = emptyList()
         val fakeService = FakeService()
         fakeService.nextContinuation = fakeService.expectedContinuation
         val collector = ListCollector(fakeService)

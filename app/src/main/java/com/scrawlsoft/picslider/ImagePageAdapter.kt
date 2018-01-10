@@ -6,24 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.scrawlsoft.picslider.feedly.FeedlyApiEntry
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
-import io.reactivex.Single
 
 class ImagePageAdapter(private val context: Context,
-                       private val entries: Single<List<FeedlyApiEntry>>,
+                       private val entries: List<ImageService.Entry>,
                        private val thing: ImageDisplayAndCache)
     : PagerAdapter() {
-    override fun getCount(): Int = entries.map { it.size }.blockingGet()
+    override fun getCount(): Int = entries.size
 
-    override fun instantiateItem(container: ViewGroup, position: Int): Any = entries.map {
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        println("ENTRIES SIZE: ${entries.size}")
+
         val inflater = LayoutInflater.from(context)
         val layout = inflater.inflate(R.layout.main_page, container, false)
         val view = layout.findViewById<ImageView>(R.id.pager_image)
-        thing.displayIntoView(it[position].uri, view)
+        thing.displayIntoView(entries[position].uri, view)
         container.addView(layout)
-        layout
-    }.blockingGet()
+        return layout
+    }
 
     override fun destroyItem(container: ViewGroup, position: Int, view: Any) {
         container.removeView(view as View)

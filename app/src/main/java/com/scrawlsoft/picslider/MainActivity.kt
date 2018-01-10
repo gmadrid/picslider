@@ -10,9 +10,11 @@ import com.scrawlsoft.picslider.images.DownloadMgr
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -60,12 +62,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         (application as PicSliderApp).appComponent.inject(this)
         setContentView(R.layout.activity_main)
+
+        val collector = ListCollector(feedlyService)
+        val entries = collector.entries
+
+        main_pager.adapter = ImagePageAdapter(this, entries, imageDisplay)
+
+        Observable.interval(5, TimeUnit.SECONDS)
+                .subscribeBy {
+                    println("INTERVAL: ${entries.size}")
+                    main_pager.adapter?.notifyDataSetChanged()
+                }
 
 //        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
 //        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }

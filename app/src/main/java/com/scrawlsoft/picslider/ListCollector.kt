@@ -31,7 +31,7 @@ class ListCollector(private val imageService: ImageService,
             : Observable<ImageService.EntryIdsResponse> {
         return imageService.getEntryIdsForCategory(category, continuation).toObservable()
                 .concatMap { response ->
-                    if (response.continuation == NoContinuationToken) {
+                    if (response.continuation == NoContinuationToken || true) {
                         just(response)
                     } else {
                         just(response).concatWith(
@@ -46,7 +46,7 @@ class ListCollector(private val imageService: ImageService,
                 downloadPagedResponse(category.id, NoContinuationToken)
             }
 
-    val entries: MutableList<ImageService.Entry> = mutableListOf()
+    var entries: List<ImageService.Entry> = mutableListOf()
 
     init {
         entryIdsResp
@@ -54,7 +54,8 @@ class ListCollector(private val imageService: ImageService,
                     imageService.getEntriesForIds(resp.ids).toObservable()
                 }
                 .subscribeBy { newEntries ->
-                    entries.addAll(newEntries)
+                    entries = entries + newEntries
+                    println("GOT SOME STUFF: ${entries.size}")
                 }
     }
 }

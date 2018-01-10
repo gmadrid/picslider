@@ -1,7 +1,9 @@
 package com.scrawlsoft.picslider.feedly
 
+import com.scrawlsoft.picslider.CategoryId
+import com.scrawlsoft.picslider.Continuation
+import com.scrawlsoft.picslider.EntryId
 import com.scrawlsoft.picslider.ImageService
-import com.scrawlsoft.picslider.NO_CONTINUATION
 import io.reactivex.Single
 import java.net.URL
 import javax.inject.Inject
@@ -25,12 +27,15 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
                         }
                     }
 
-    override fun getEntryIdsForCategory(categoryId: String, continuation: String?)
-            : Single<Pair<String, List<String>>> =
-            feedlyApi.entryIdsForStream(authHeader, categoryId, continuation = continuation)
-                    .map { resp -> Pair(resp.continuation ?: NO_CONTINUATION, resp.ids) }
+    override fun getEntryIdsForCategory(categoryId: CategoryId, continuation: Continuation)
+            : Single<ImageService.EntryIdsResponse> =
+            feedlyApi.entryIdsForStream(authHeader, categoryId, continuation = continuation.apiString)
+                    .map { resp ->
+                        ImageService.EntryIdsResponse(
+                                Continuation.fromString(resp.continuation), resp.ids)
+                    }
 
-    override fun getEntriesForIds(entryIds: List<String>): Single<List<ImageService.Entry>> {
+    override fun getEntriesForIds(entryIds: List<EntryId>): Single<List<ImageService.Entry>> {
         return feedlyApi.entriesForIds(entryIds)
                 .map {
                     // Convert from JSON rep to FeedlyApiEntry, removing entries without
@@ -57,7 +62,7 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
             // <img[^>]* src="()" >
             //
             // Also, note the spurious "redundant character escape" warnings.
-            val re = Regex("<img\\s+[^>]*src=\\\"([^\\\"]*)\"")
+            val re = Regex("""<img\s+[^>]*src="([^"]*)"""")
             val f = re.find(content)
             if (f == null) {
                 println("NOREFOUND")

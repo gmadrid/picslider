@@ -16,7 +16,7 @@ class FeedlyServiceTest {
                 FeedlyApiCategory("two", "twoLabel", "twoDesc"),
                 FeedlyApiCategory("three", "threeLabel", "threeDesc"))
         var theException: Throwable? = null
-        var continuation: String? = null
+        var nextContinuation: String? = null
         var entryIds: List<String> = listOf("e1", "e2", "e3", "e4")
         private var entryLookup = hashMapOf(
                 "e1" to FeedlyApiJSONEntry("e1", null, simpleVisual("http://foobar.com/e1"), null),
@@ -40,7 +40,7 @@ class FeedlyServiceTest {
                     emptyList()
                 } else {
                     entryIds
-                }, continuation))
+                }, nextContinuation))
             }
         }
 
@@ -115,32 +115,32 @@ class FeedlyServiceTest {
     fun `test entry id request with bad category id`() {
         val api = FakeApi()
         val service = FeedlyService(api, "feedlyUserToken")
-        val resp = service.getEntryIdsForCategory("invalid", null).blockingGet()
-        assertNull(resp.first)
-        assertEquals(0, resp.second.size)
+        val resp = service.getEntryIdsForCategory("invalid", NoContinuationToken).blockingGet()
+        assertEquals(NoContinuationToken, resp.continuation)
+        assertTrue(resp.ids.isEmpty())
     }
 
     @Test
     fun `test entry id request with good category id`() {
         val api = FakeApi()
         val service = FeedlyService(api, "feedlyUserToken")
-        val resp = service.getEntryIdsForCategory("valid", null).blockingGet()
-        assertNull(resp.first)
-        assertEquals(4, resp.second.size)
-        api.entryIds.forEach { entryId -> assertNotNull(resp.second.find { it == entryId }) }
+        val resp = service.getEntryIdsForCategory("valid", NoContinuationToken).blockingGet()
+        assertEquals(NoContinuationToken, resp.continuation)
+        assertEquals(4, resp.ids.size)
+        api.entryIds.forEach { entryId -> assertNotNull(resp.ids.find { it == entryId }) }
     }
 
     @Test
     fun `test entry id request with good category id and continuation`() {
-        val theContinuation = "acontinuation"
+        val continuationToken = "acontinuation"
         val api = FakeApi().apply {
-            continuation = theContinuation
+            nextContinuation = continuationToken
         }
         val service = FeedlyService(api, "feedlyUserToken")
-        val resp = service.getEntryIdsForCategory("valid", null).blockingGet()
-        assertEquals(resp.first, theContinuation)
-        assertEquals(4, resp.second.size)
-        api.entryIds.forEach { entryId -> assertNotNull(resp.second.find { it == entryId }) }
+        val resp = service.getEntryIdsForCategory("valid", NoContinuationToken).blockingGet()
+        assertEquals(resp.continuation.apiString, continuationToken)
+        assertEquals(4, resp.ids.size)
+        api.entryIds.forEach { entryId -> assertNotNull(resp.ids.find { it == entryId }) }
     }
 
     @Test
@@ -149,7 +149,7 @@ class FeedlyServiceTest {
         val msg = "some sort of error"
         api.theException = Exception(msg)
         val service = FeedlyService(api, "feedlyUserToken")
-        service.getEntryIdsForCategory("someid", null)
+        service.getEntryIdsForCategory("someid", NoContinuationToken)
                 .subscribeBy(onError = { assertEquals(msg, it.message) },
                         onSuccess = { fail("expected error") })
     }

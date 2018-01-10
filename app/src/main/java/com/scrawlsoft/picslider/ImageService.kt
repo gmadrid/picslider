@@ -14,9 +14,13 @@ sealed class Continuation(val apiString: String?) {
     }
 }
 
-object NoContinuationToken : Continuation(null)
+object NoContinuationToken : Continuation(null) {
+    override fun toString(): String = "NoContinuationToken"
+}
 
-class ContinuationToken(apiString: String) : Continuation(apiString)
+class ContinuationToken(apiString: String) : Continuation(apiString) {
+    override fun toString(): String = "Continuation: '$apiString'"
+}
 
 interface ImageService {
 

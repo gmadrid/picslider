@@ -5,6 +5,6 @@ import io.reactivex.Completable
 import java.net.URL
 
 interface ImageDisplayAndCache {
-    fun displayIntoView(uri: URL, imageView: ImageView): Completable
-    fun loadIntoCache(uri: URL): Completable
+    fun displayIntoView(url: URL, imageView: ImageView): Completable
+    fun loadIntoCache(url: URL): Completable
 }

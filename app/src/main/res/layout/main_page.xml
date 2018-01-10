@@ -6,7 +6,6 @@
 
     <ImageView
         android:id="@+id/pager_image"
-        android:background="#884444"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

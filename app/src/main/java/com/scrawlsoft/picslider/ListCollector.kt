@@ -46,16 +46,19 @@ class ListCollector(private val imageService: ImageService,
                 downloadPagedResponse(category.id, NoContinuationToken)
             }
 
-    var entries: List<ImageService.Entry> = mutableListOf()
+    var entries: Observable<List<ImageService.Entry>> = entryIdsResp
+            .concatMap { resp -> imageService.getEntriesForIds(resp.ids).toObservable() }
+            .map { it }
+            .scan(emptyList()) { acc, newList -> acc + newList }
 
-    init {
-        entryIdsResp
-                .concatMap { resp ->
-                    imageService.getEntriesForIds(resp.ids).toObservable()
-                }
-                .subscribeBy { newEntries ->
-                    entries = entries + newEntries
-                    println("GOT SOME STUFF: ${entries.size}")
-                }
-    }
+//    init {
+//        entryIdsResp
+//                .concatMap { resp ->
+//                    imageService.getEntriesForIds(resp.ids).toObservable()
+//                }
+//                .subscribeBy { newEntries ->
+//                    entries = entries + newEntries
+//                    println("GOT SOME STUFF: ${entries.size}")
+//                }
+//    }
 }

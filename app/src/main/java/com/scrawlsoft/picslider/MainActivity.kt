@@ -3,18 +3,18 @@ package com.scrawlsoft.picslider
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
+import android.view.View.FOCUS_LEFT
+import android.view.View.FOCUS_RIGHT
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.view.enabled
 import com.scrawlsoft.picslider.feedly.FeedlyService
 import com.scrawlsoft.picslider.images.DownloadMgr
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -62,6 +62,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun Any?.isNull(): Boolean {
+        return this == null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -69,20 +73,35 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val collector = ListCollector(feedlyService)
-        val entries = collector.entries
 
-        main_pager.adapter = ImagePageAdapter(this, entries, imageDisplay)
-
-        Observable.interval(5, TimeUnit.SECONDS)
-                .subscribeBy {
-                    println("INTERVAL: ${entries.size}")
-                    main_pager.adapter?.notifyDataSetChanged()
+        println(main_pager.adapter)
+        collector.entries.observeOn(AndroidSchedulers.mainThread())
+                .bindToLifecycle(this)
+                .subscribeBy { newList ->
+                    if (main_pager.adapter.isNull()) {
+                        if (newList.isNotEmpty()) {
+                            main_pager.adapter = ImagePageAdapter(this, imageDisplay).also {
+                                it.entries = newList
+                            }
+                            // TODO: DRY
+                            (main_pager.adapter as ImagePageAdapter).entries = newList
+                        }
+                    } else {
+                        (main_pager.adapter as ImagePageAdapter).entries = newList
+                    }
                 }
 
-//        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
-//        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
-//        val prevStream = Observable.merge(volPrev, prev_button.clicks())
-//        val nextStream = Observable.merge(volNext, next_button.clicks())
+        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
+        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
+        val prevStream = Observable.merge(volPrev, prev_button.clicks()).map { FOCUS_LEFT }
+        val nextStream = Observable.merge(volNext, next_button.clicks()).map { FOCUS_RIGHT }
+        Observable.merge(prevStream, nextStream)
+                .observeOn(AndroidSchedulers.mainThread())
+                .bindToLifecycle(this)
+                .subscribe { main_pager.arrowScroll(it) }
+
+
+        // TODO: add back "mark as read"
 //        val browser = StreamBrowser(feedlyService, prevStream, nextStream)
 //        main_pager.adapter = ImagePageAdapter(this, browser.entries, imageDisplay)
 

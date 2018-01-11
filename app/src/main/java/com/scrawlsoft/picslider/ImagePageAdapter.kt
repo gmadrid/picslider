@@ -16,7 +16,9 @@ class ImagePageAdapter(private val context: Context,
                        private val thing: ImageDisplayAndCache)
     : PagerAdapter() {
 
-    inner class ViewHolder(val layout: View, var entryId: EntryId, var loaded: Boolean = false) : Callback {
+    inner class ViewHolder(val layout: View,
+                           private val entryId: EntryId,
+                           var loaded: Boolean = false) : Callback {
         override fun onSuccess() {
             loaded = true
         }
@@ -54,8 +56,7 @@ class ImagePageAdapter(private val context: Context,
         val entry = entries[position]
         thing.displayIntoView(entry.uri, view)
         container.addView(layout)
-        val vh = ViewHolder(layout, entry.id)
-        return vh
+        return ViewHolder(layout, entry.id)
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, view: Any) {
@@ -64,7 +65,9 @@ class ImagePageAdapter(private val context: Context,
 
     override fun setPrimaryItem(container: ViewGroup, position: Int, obj: Any) {
         primaryItem = (obj as ViewHolder).also {
-            it.markViewed(service)
+            if (it.loaded) {
+                it.markViewed(service)
+            }
         }
     }
 

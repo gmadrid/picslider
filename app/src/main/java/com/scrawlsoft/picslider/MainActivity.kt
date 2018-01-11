@@ -62,10 +62,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inline fun Any?.isNull(): Boolean {
-        return this == null
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -78,10 +74,10 @@ class MainActivity : AppCompatActivity() {
         collector.entries.observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribeBy { newList ->
-                    if (main_pager.adapter.isNull()) {
+                    if (main_pager.adapter == null) {
                         if (newList.isNotEmpty()) {
-                            main_pager.adapter = ImagePageAdapter(this, feedlyService, imageDisplay).also {
-                                it.entries = newList
+                            main_pager.adapter = ImagePageAdapter(this, feedlyService, imageDisplay).apply {
+                                entries = newList
                             }
                             // TODO: DRY
                             (main_pager.adapter as ImagePageAdapter).entries = newList

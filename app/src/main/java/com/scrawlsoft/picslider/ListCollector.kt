@@ -44,6 +44,5 @@ class ListCollector(private val imageService: ImageService,
 
     var entries: Observable<List<ImageService.Entry>> = entryIdsResp
             .concatMap { resp -> imageService.getEntriesForIds(resp.ids).toObservable() }
-            .map { it }
             .scan { acc, newList -> acc + newList }
 }

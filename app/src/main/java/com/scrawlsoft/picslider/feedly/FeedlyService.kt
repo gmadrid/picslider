@@ -39,11 +39,12 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
     override fun getEntriesForIds(entryIds: List<EntryId>): Single<List<ImageService.Entry>> {
         return feedlyApi.entriesForIds(entryIds)
                 .map {
-                    // Convert from JSON rep to FeedlyApiEntry, removing entries without
-                    // uris at the same time.
-                    it.fold(emptyList<ImageService.Entry>()) { acc, jsonEntry ->
-                        val uri = FeedlyService.extractUrl(jsonEntry)
-                        if (uri != null) acc + ImageService.Entry(jsonEntry.id, uri) else acc
+                    it.mapNotNull { jsonEntry ->
+                        // Convert from JSON rep to FeedlyApiEntry,
+                        // removing entries without uris at the same time.
+                        FeedlyService.extractUrl(jsonEntry)?.let { url ->
+                            ImageService.Entry(jsonEntry.id, url)
+                        }
                     }
                 }
     }

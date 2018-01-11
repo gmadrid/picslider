@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun Any?.isNull(): Boolean {
+    inline fun Any?.isNull(): Boolean {
         return this == null
     }
 
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribeBy { newList ->
                     if (main_pager.adapter.isNull()) {
                         if (newList.isNotEmpty()) {
-                            main_pager.adapter = ImagePageAdapter(this, imageDisplay).also {
+                            main_pager.adapter = ImagePageAdapter(this, feedlyService, imageDisplay).also {
                                 it.entries = newList
                             }
                             // TODO: DRY

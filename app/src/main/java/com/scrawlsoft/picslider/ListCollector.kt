@@ -4,7 +4,6 @@ import io.reactivex.Observable
 import io.reactivex.Observable.just
 import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
-import io.reactivex.rxkotlin.subscribeBy
 
 /**
  * Exports a List<FeedlyEntry> and its count.
@@ -22,16 +21,13 @@ class ListCollector(private val imageService: ImageService,
     { lst, name ->
         lst.find { it.name == name } ?:
                 throw Exception("Category '$name' not found.")
-
     }
-            .replay(1)
-            .autoConnect()
 
     private fun downloadPagedResponse(category: CategoryId, continuation: Continuation)
             : Observable<ImageService.EntryIdsResponse> {
         return imageService.getEntryIdsForCategory(category, continuation).toObservable()
                 .concatMap { response ->
-                    if (response.continuation == NoContinuationToken || true) {
+                    if (response.continuation == NoContinuationToken) {
                         just(response)
                     } else {
                         just(response).concatWith(
@@ -49,16 +45,5 @@ class ListCollector(private val imageService: ImageService,
     var entries: Observable<List<ImageService.Entry>> = entryIdsResp
             .concatMap { resp -> imageService.getEntriesForIds(resp.ids).toObservable() }
             .map { it }
-            .scan(emptyList()) { acc, newList -> acc + newList }
-
-//    init {
-//        entryIdsResp
-//                .concatMap { resp ->
-//                    imageService.getEntriesForIds(resp.ids).toObservable()
-//                }
-//                .subscribeBy { newEntries ->
-//                    entries = entries + newEntries
-//                    println("GOT SOME STUFF: ${entries.size}")
-//                }
-//    }
+            .scan { acc, newList -> acc + newList }
 }

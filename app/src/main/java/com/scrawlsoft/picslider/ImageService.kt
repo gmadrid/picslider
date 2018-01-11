@@ -1,5 +1,6 @@
 package com.scrawlsoft.picslider
 
+import io.reactivex.Completable
 import io.reactivex.Single
 import java.net.URL
 
@@ -33,4 +34,5 @@ interface ImageService {
             : Single<EntryIdsResponse>
 
     fun getEntriesForIds(entryIds: List<EntryId>): Single<List<Entry>>
+    fun markAsRead(entryIds: List<String>): Completable
 }

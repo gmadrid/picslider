@@ -42,6 +42,7 @@ interface FeedlyApi {
                           @Query("streamId") streamId: String,
                           @Query("unreadOnly") unreadOnly: Boolean = true,
                           @Query("count") count: Int = 100,
+                          @Query("ranked") ranked: String = "oldest",
                           @Query("continuation") continuation: String? = null)
             : Single<FeedlyApiEntryIdsResponse>
 

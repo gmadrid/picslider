@@ -2,6 +2,7 @@
 
 package com.scrawlsoft.picslider
 
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.subscribeBy
 import junit.framework.Assert.*
@@ -9,8 +10,8 @@ import org.junit.Test
 import java.net.URL
 
 class ListCollectorTest {
-    fun simpleCategory(id: String) = ImageService.Category(id, "name($id)", "desc($id)")
-    fun simpleEntryPair(id: String) = Pair(id, ImageService.Entry(id, idToURL(id)))
+    private fun simpleCategory(id: String) = ImageService.Category(id, "name($id)", "desc($id)")
+    private fun simpleEntryPair(id: String) = Pair(id, ImageService.Entry(id, idToURL(id)))
     private fun idToURL(id: String) = URL("http://www.fakesite.com/$id")
 
     inner class FakeService : ImageService {
@@ -68,70 +69,63 @@ class ListCollectorTest {
                         (entriesMap[entryId] ?: continuingMap[entryId])
                     })
                 }
+
+        override fun markAsRead(entryIds: List<String>): Completable {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
-// TODO: get this working again.
-//    @Test
-//    fun `list collector with missing category`() {
-//        val fakeService = FakeService()
-//        fakeService.categoryResponse = fakeService.categoryResponse.filter { it.name != "Porn" }
-//        val collector = ListCollector(fakeService)
-//
-//        collector.entries.subscribeBy(
-//                onError = { e ->
-//                    val s = "Category 'Porn' not found."
-//                    assertTrue("At least one of the exceptions should be from ListCollector",
-//                            e.message == s)
-//                },
-//                onComplete = { fail("expected error, not completion") },
-//                onNext = { fail("expected error, not result") })
-//    }
+    @Test
+    fun `list collector with missing category`() {
+        val fakeService = FakeService()
+        fakeService.categoryResponse = fakeService.categoryResponse.filter { it.name != "Porn" }
+        val collector = ListCollector(fakeService)
 
-//    @Test
-//    fun `list collector with empty list`() {
-//        val fakeService = FakeService()
-//        fakeService.entriesMap = hashMapOf()
-//        val collector = ListCollector(fakeService)
-//
-//        collector.entries
-//                .subscribeBy { entries ->
-//                    assertTrue(entries.isEmpty())
-//                }
-//    }
-//
-//    @Test
-//    fun `list collector with first list`() {
-//        val fakeService = FakeService()
-//        val collector = ListCollector(fakeService)
-//
-//        collector.entries
-//                .subscribeBy { entries ->
-//                    assertEquals(4, entries.size)
-//                }
-//    }
-//
-//    @Test
-//    fun `list collector with second list appended`() {
-//        val fakeService = FakeService()
-//        fakeService.nextContinuation = fakeService.expectedContinuation
-//        val collector = ListCollector(fakeService)
-//
-//        val allEntries: MutableList<ImageService.Entry> = mutableListOf()
-//        collector.entries.subscribeBy(onNext = { entries ->
-//            allEntries.addAll(entries)
-//        })
-//        assertEquals(9, allEntries.size)
-//    }
+        collector.entries.subscribeBy(
+                onError = { e ->
+                    val s = "Category 'Porn' not found."
+                    assertEquals(s, e.message)
+                },
+                onComplete = { fail("expected error, not completion") },
+                onNext = { foo -> fail("expected error, not result: $foo") })
+    }
 
     @Test
-    fun foobar() {
-        val foo : List<Int> = emptyList()
+    fun `list collector with empty list`() {
+        val fakeService = FakeService()
+        fakeService.entriesMap = hashMapOf()
+        val collector = ListCollector(fakeService)
+
+        collector.entries
+                .subscribeBy { entries ->
+                    assertTrue(entries.isEmpty())
+                }
+    }
+
+    @Test
+    fun `list collector with first list`() {
+        val fakeService = FakeService()
+        val collector = ListCollector(fakeService)
+
+        collector.entries
+                .subscribeBy { entries ->
+                    assertEquals(4, entries.size)
+                }
+    }
+
+    @Test
+    fun `list collector with second list appended`() {
         val fakeService = FakeService()
         fakeService.nextContinuation = fakeService.expectedContinuation
         val collector = ListCollector(fakeService)
 
-        assertEquals(9, collector.entries.size)
+        var savedEntries: List<ImageService.Entry> = emptyList()
+        collector.entries.subscribeBy(onNext = { entries ->
+            savedEntries = entries
+        })
+        assertEquals(9, savedEntries.size)
     }
+
 
 //    @Test
 //    fun `list collector access by index`() {

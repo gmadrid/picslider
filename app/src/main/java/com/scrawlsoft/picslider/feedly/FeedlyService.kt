@@ -4,6 +4,7 @@ import com.scrawlsoft.picslider.CategoryId
 import com.scrawlsoft.picslider.Continuation
 import com.scrawlsoft.picslider.EntryId
 import com.scrawlsoft.picslider.ImageService
+import io.reactivex.Completable
 import io.reactivex.Single
 import java.net.URL
 import javax.inject.Inject
@@ -31,7 +32,6 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
             : Single<ImageService.EntryIdsResponse> =
             feedlyApi.entryIdsForStream(authHeader, categoryId, continuation = continuation.apiString)
                     .map { resp ->
-                        println("continuation: ${resp.continuation}")
                         ImageService.EntryIdsResponse(
                                 Continuation.fromString(resp.continuation), resp.ids)
                     }
@@ -48,11 +48,9 @@ class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
                 }
     }
 
-//    fun markAsRead(entryId: String): Completable = markAsRead(listOf(entryId))
-
-//    fun markAsRead(entryIds: List<String>): Completable =
-//            feedlyApi.mark(authHeader,
-//                    FeedlyApiMarkerRequest("markAsRead", "entries", entryIds))
+    override fun markAsRead(entryIds: List<String>): Completable =
+            feedlyApi.mark(authHeader,
+                    FeedlyApiMarkerRequest("markAsRead", "entries", entryIds))
 
     companion object {
         private fun findUrlInContent(content: String): String? {

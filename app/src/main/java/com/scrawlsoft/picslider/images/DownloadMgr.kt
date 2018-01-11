@@ -3,6 +3,8 @@ package com.scrawlsoft.picslider.images
 import android.app.DownloadManager
 import android.net.Uri
 
+/* Wrapper around Android DownloadManager to allow testing and provide some convenience funcs */
+// TODO: needs testing.
 interface DownloadMgr {
     fun enqueue(req: DownloadManager.Request)
 

@@ -1,5 +1,9 @@
 package com.scrawlsoft.picslider
 
+import com.scrawlsoft.picslider.base.CategoryId
+import com.scrawlsoft.picslider.base.Continuation
+import com.scrawlsoft.picslider.base.ImageService
+import com.scrawlsoft.picslider.base.NoContinuationToken
 import io.reactivex.Observable
 import io.reactivex.Observable.just
 import io.reactivex.Single

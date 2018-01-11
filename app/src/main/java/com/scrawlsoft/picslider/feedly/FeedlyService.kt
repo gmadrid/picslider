@@ -1,9 +1,9 @@
 package com.scrawlsoft.picslider.feedly
 
-import com.scrawlsoft.picslider.CategoryId
-import com.scrawlsoft.picslider.Continuation
-import com.scrawlsoft.picslider.EntryId
-import com.scrawlsoft.picslider.ImageService
+import com.scrawlsoft.picslider.base.CategoryId
+import com.scrawlsoft.picslider.base.Continuation
+import com.scrawlsoft.picslider.base.EntryId
+import com.scrawlsoft.picslider.base.ImageService
 import io.reactivex.Completable
 import io.reactivex.Single
 import java.net.URL

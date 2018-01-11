@@ -2,6 +2,7 @@
 
 package com.scrawlsoft.picslider
 
+import com.scrawlsoft.picslider.base.*
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.subscribeBy

@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import com.scrawlsoft.picslider.base.EntryId
+import com.scrawlsoft.picslider.base.ImageService
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import com.squareup.picasso.Callback
 import io.reactivex.android.schedulers.AndroidSchedulers

@@ -1,4 +1,4 @@
-package com.scrawlsoft.picslider
+package com.scrawlsoft.picslider.base
 
 import io.reactivex.Completable
 import io.reactivex.Single

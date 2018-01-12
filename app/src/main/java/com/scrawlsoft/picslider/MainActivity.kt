@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.View.FOCUS_LEFT
 import android.view.View.FOCUS_RIGHT
+import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.scrawlsoft.picslider.feedly.FeedlyService
 import com.scrawlsoft.picslider.images.DownloadMgr
@@ -73,7 +74,10 @@ class MainActivity : AppCompatActivity() {
         println(main_pager.adapter)
         collector.entries.observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
-                .subscribeBy { newList ->
+                .subscribeBy(onError = { e ->
+                    Toast.makeText(this, "FOUND AN EXC", Toast.LENGTH_SHORT).show()
+                    println(e.localizedMessage)
+                }) { newList ->
                     if (main_pager.adapter == null) {
                         if (newList.isNotEmpty()) {
                             main_pager.adapter = ImagePageAdapter(this, feedlyService, imageDisplay).apply {
@@ -97,26 +101,6 @@ class MainActivity : AppCompatActivity() {
                 .subscribe { main_pager.arrowScroll(it) }
 
 
-        // TODO: add back "mark as read"
-//        val browser = StreamBrowser(feedlyService, prevStream, nextStream)
-//        main_pager.adapter = ImagePageAdapter(this, browser.entries, imageDisplay)
-
-//        browser.currentEntry
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .bindToLifecycle(this)
-//                .subscribe {
-//                    val entryId = it.id
-//                    val uri = it.uri
-//                    imageDisplay.displayIntoView(uri, main_image)
-//                            .andThen(feedlyService.markAsRead(entryId))
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            // TODO: Figure out now to get rid of nested subscribes.
-//                            .subscribeBy(onError = { _ ->
-//                                Toast.makeText(this, "Failed to mark as read", Toast.LENGTH_SHORT).show()
-//                            }) {
-//                                //Toast.makeText(this, "Marked as read", Toast.LENGTH_SHORT).show()
-//                            }
-//                }
 
 //        browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())
 //        browser.hasNext.bindToLifecycle(this).subscribe(next_button.enabled())

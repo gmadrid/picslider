@@ -6,7 +6,6 @@ import com.scrawlsoft.picslider.base.NoContinuationToken
 import com.scrawlsoft.picslider.feedly.*
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.rxkotlin.subscribeBy
 import junit.framework.Assert.*
 import org.junit.Test
 
@@ -127,9 +126,12 @@ class FeedlyServiceTest {
         val feedlyUserToken = "userToken"
         val service = FeedlyService(api, feedlyUserToken)
 
-        service.categories.subscribeBy(
-                onSuccess = { fail("Expected exception") },
-                onError = {})
+        try {
+            service.categories.blockingGet()
+            fail("Expected exception")
+        } catch (e: Exception) {
+            // Success!
+        }
     }
 
     @Test
@@ -184,9 +186,12 @@ class FeedlyServiceTest {
         val service = FeedlyService(api, "feedlyUserToken")
 
         // TODO: figure out how to make this fail when exceptions are thrown
-        service.getEntryIdsForCategory("someid", NoContinuationToken)
-                .subscribeBy(onError = { assertEquals(msg, it.message) },
-                        onSuccess = { fail("expected error") })
+        try {
+            service.getEntryIdsForCategory("someid", NoContinuationToken).blockingGet()
+            fail("expected error")
+        } catch (e: Exception) {
+            assertTrue(e.localizedMessage.endsWith(msg))
+        }
     }
 
     @Test
@@ -235,7 +240,12 @@ class FeedlyServiceTest {
             theException = Exception(message)
         }
         val service = FeedlyService(api, "feedlyUserToken")
-        service.getEntriesForIds(emptyList()).subscribeBy({}, { fail("expected error") })
+        try {
+            service.getEntriesForIds(emptyList()).blockingGet()
+            fail("expected error")
+        } catch (e: Exception) {
+            assertTrue(e.localizedMessage.endsWith(message))
+        }
     }
 
     // TODO: test marking.

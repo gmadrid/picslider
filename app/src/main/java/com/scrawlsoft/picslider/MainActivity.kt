@@ -71,11 +71,10 @@ class MainActivity : AppCompatActivity() {
 
         val collector = ListCollector(feedlyService)
 
-        println(main_pager.adapter)
         collector.entries.observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribeBy(onError = { e ->
-                    Toast.makeText(this, "FOUND AN EXC", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "FOUND AN EXC: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
                     println(e.localizedMessage)
                 }) { newList ->
                     if (main_pager.adapter == null) {

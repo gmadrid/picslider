@@ -17,6 +17,7 @@ class ListCollectorTest {
 
     inner class FakeService : ImageService {
         val continuation1 = ContinuationToken("continuation1")
+        val continuation2 = ContinuationToken("continuation2")
 
         var categoryResponse = listOf(
                 simpleCategory("catOne"),
@@ -39,11 +40,20 @@ class ListCollectorTest {
                                 simpleEntryPair("continuing7"),
                                 simpleEntryPair("continuing8"),
                                 simpleEntryPair("continuing9")
+                        ),
+                        continuation2 to hashMapOf(
+                                simpleEntryPair("continuing2-10"),
+                                simpleEntryPair("continuing2-11"),
+                                simpleEntryPair("continuing2-12"),
+                                simpleEntryPair("continuing2-13"),
+                                simpleEntryPair("continuing2-14"),
+                                simpleEntryPair("continuing2-15")
                         )
                 )
 
         // If there is a next continuation, put it here.
-        var nextContinuation: Continuation? = null
+        var nextContinuations: List<Continuation> = emptyList()
+        var nextContinuationIndex = 0
 
         override val categories: Single<List<ImageService.Category>> =
                 Single.create { it.onSuccess(categoryResponse) }
@@ -51,25 +61,14 @@ class ListCollectorTest {
         override fun getEntryIdsForCategory(categoryId: CategoryId, continuation: Continuation)
                 : Single<ImageService.EntryIdsResponse> =
                 Single.create<ImageService.EntryIdsResponse> { subscriber ->
-                    val entries = entriesByContinuation[continuation]!!
+                    val entries = entriesByContinuation[continuation] ?: hashMapOf()
                     subscriber.onSuccess(
                             ImageService.EntryIdsResponse(
-                                    nextContinuation ?: NoContinuationToken,
+                                    nextContinuations
+                                            .getOrElse(nextContinuationIndex++,
+                                                    { NoContinuationToken }),
                                     entries.keys.sorted().toList()))
                 }
-
-//            val result = when (continuation) {
-//                NoContinuationToken ->
-//                    ImageService.EntryIdsResponse(nextContinuation, entriesMap.keys.sorted().toList())
-//                else -> {
-//                    nextContinuation = NoContinuationToken
-//                    ImageService.EntryIdsResponse(NoContinuationToken, continuingMap.keys.sorted().toList())
-//                }
-//            }
-//
-//            return Single.create<ImageService.EntryIdsResponse> {
-//                it.onSuccess(result)
-//            }
 
         override fun getEntriesForIds(entryIds: List<EntryId>): Single<List<ImageService.Entry>> =
                 Single.create<List<ImageService.Entry>> { subscriber ->
@@ -130,7 +129,7 @@ class ListCollectorTest {
     @Test
     fun `list collector with second list appended`() {
         val fakeService = FakeService()
-        fakeService.nextContinuation = fakeService.continuation1
+        fakeService.nextContinuations = listOf(fakeService.continuation1)
         val collector = ListCollector(fakeService)
 
         var savedEntries: List<ImageService.Entry> = emptyList()
@@ -138,6 +137,19 @@ class ListCollectorTest {
             savedEntries = entries
         })
         assertEquals(9, savedEntries.size)
+    }
+
+    @Test
+    fun `list collector with third list`() {
+        val fakeService = FakeService()
+        fakeService.nextContinuations = listOf(fakeService.continuation1, fakeService.continuation2)
+        val collector = ListCollector(fakeService)
+
+        var savedEntries: List<ImageService.Entry> = emptyList()
+        collector.entries.blockingSubscribeBy(onNext = { entries ->
+            savedEntries = entries
+        })
+        assertEquals(15, savedEntries.size)
     }
 
 

@@ -35,8 +35,7 @@ class ListCollector(private val imageService: ImageService,
                         just(response)
                     } else {
                         just(response).concatWith(
-                                imageService.getEntryIdsForCategory(category, response.continuation)
-                                        .toObservable())
+                                downloadPagedResponse(category, response.continuation))
                     }
                 }
     }

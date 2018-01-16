@@ -33,7 +33,6 @@ import javax.inject.Inject
  *   - don't overfill cache
  *   - increase space available for disk cache.
  * - animate moving to new image
- * - swipe to new image
  */
 class MainActivity : AppCompatActivity() {
 

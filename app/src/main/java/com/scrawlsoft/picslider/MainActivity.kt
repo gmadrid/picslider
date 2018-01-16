@@ -5,11 +5,11 @@ import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.View.FOCUS_LEFT
 import android.view.View.FOCUS_RIGHT
-import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.scrawlsoft.picslider.feedly.FeedlyService
 import com.scrawlsoft.picslider.images.DownloadMgr
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
+import com.scrawlsoft.picslider.utils.longToast
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -74,19 +74,20 @@ class MainActivity : AppCompatActivity() {
         collector.entries.observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribeBy(onError = { e ->
-                    Toast.makeText(this, "FOUND AN EXC: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    // TODO: probably a dialog here.
+                    longToast("Problem downloading data: ${e.localizedMessage}")
                     println(e.localizedMessage)
                 }) { newList ->
-                    if (main_pager.adapter == null) {
-                        if (newList.isNotEmpty()) {
-                            main_pager.adapter = ImagePageAdapter(this, feedlyService, imageDisplay).apply {
-                                entries = newList
-                            }
-                            // TODO: DRY
-                            (main_pager.adapter as ImagePageAdapter).entries = newList
+                    // Setting a page adapter with an empty list causes a null argument to be passed
+                    // to setPrimaryItem which is supposed to be @NonNull. This breaks Kotlin
+                    // before I can make any sort of check. So, be sure not to instantiate the
+                    // adapter before the list is populated.
+                    if (main_pager.adapter == null && newList.isNotEmpty()) {
+                        main_pager.adapter = ImagePageAdapter(this, feedlyService, imageDisplay).apply {
+                            entries = newList
                         }
                     } else {
-                        (main_pager.adapter as ImagePageAdapter).entries = newList
+                        (main_pager.adapter as? ImagePageAdapter)?.entries = newList
                     }
                 }
 
@@ -98,7 +99,6 @@ class MainActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .bindToLifecycle(this)
                 .subscribe { main_pager.arrowScroll(it) }
-
 
 
 //        browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())

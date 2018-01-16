@@ -10,8 +10,8 @@ import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
 
 /**
- * Exports a List<FeedlyEntry> and its count.
- * Manages getting more entries if required.
+ * Exports a List<FeedlyEntry>.
+ * Manages getting more entries if required and available.
  */
 class ListCollector(private val imageService: ImageService,
                     categoryName: Observable<String> = just("Porn")) {

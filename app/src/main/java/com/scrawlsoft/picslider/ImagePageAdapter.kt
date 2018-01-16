@@ -9,7 +9,6 @@ import android.widget.ImageView
 import com.scrawlsoft.picslider.base.EntryId
 import com.scrawlsoft.picslider.base.ImageService
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
-import com.squareup.picasso.Callback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 
@@ -20,21 +19,11 @@ class ImagePageAdapter(private val context: Context,
 
     inner class ViewHolder(val layout: View,
                            private val entryId: EntryId,
-                           var loaded: Boolean = false) : Callback {
-        override fun onSuccess() {
-            loaded = true
-        }
-
-        override fun onError() {
-            // TODO do something here.
-        }
-
+                           var loaded: Boolean = false) {
         fun markViewed(service: ImageService) {
             service.markAsRead(listOf(entryId))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeBy {
-                        // TODO: do something here.
-                    }
+                    .subscribeBy {}
         }
     }
 
@@ -56,9 +45,16 @@ class ImagePageAdapter(private val context: Context,
         val view = layout.findViewById<ImageView>(R.id.pager_image)
 
         val entry = entries[position]
-        thing.displayIntoView(entry.uri, view)
+        val viewHolder = ViewHolder(layout, entry.id)
+        thing.displayIntoView(entry.uri, view, { loadedSuccessfully ->
+            if (loadedSuccessfully) {
+                viewHolder.loaded = true
+            } else {
+                TODO("do something here")
+            }
+        })
         container.addView(layout)
-        return ViewHolder(layout, entry.id)
+        return viewHolder
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, view: Any) {

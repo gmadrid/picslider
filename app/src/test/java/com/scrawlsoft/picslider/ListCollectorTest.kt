@@ -53,7 +53,7 @@ class ListCollectorTest {
 
         // If there is a next continuation, put it here.
         var nextContinuations: List<Continuation> = emptyList()
-        var nextContinuationIndex = 0
+        private var nextContinuationIndex = 0
 
         override val categories: Single<List<ImageService.Category>> =
                 Single.create { it.onSuccess(categoryResponse) }
@@ -83,7 +83,9 @@ class ListCollectorTest {
                 }
 
         override fun markAsRead(entryIds: List<String>): Completable {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            val msg = "This should be unused by the ListCollector class"
+            fail(msg)
+            throw RuntimeException(msg)
         }
     }
 
@@ -118,12 +120,12 @@ class ListCollectorTest {
         val fakeService = FakeService()
         val collector = ListCollector(fakeService)
 
-        var theEntries: List<ImageService.Entry> = emptyList()
+        var savedEntries: List<ImageService.Entry> = emptyList()
         collector.entries
                 .blockingSubscribeBy { entries ->
-                    theEntries = entries
-                    assertEquals(4, entries.size)
+                    savedEntries = entries
                 }
+        assertEquals(4, savedEntries.size)
     }
 
     @Test
@@ -151,21 +153,4 @@ class ListCollectorTest {
         })
         assertEquals(15, savedEntries.size)
     }
-
-
-//    @Test
-//    fun `list collector access by index`() {
-//    }
-//
-//    @Test
-//    fun `list collector index out of range low`() {
-//    }
-//
-//    @Test
-//    fun `list collector index out of range high`() {
-//    }
-//
-//    @Test
-//    fun `list collector`() {
-//    }
 }

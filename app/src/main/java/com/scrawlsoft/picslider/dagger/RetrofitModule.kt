@@ -18,3 +18,9 @@ class RetrofitModule {
                     .addCallAdapterFactory(
                             RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
 }
+
+/*
+
+
+
+ */

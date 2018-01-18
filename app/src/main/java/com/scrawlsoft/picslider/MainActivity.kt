@@ -1,5 +1,6 @@
 package com.scrawlsoft.picslider
 
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
@@ -99,6 +100,15 @@ class MainActivity : AppCompatActivity() {
                 .bindToLifecycle(this)
                 .subscribe { main_pager.arrowScroll(it) }
 
+        save_button.clicks()
+                .bindToLifecycle(this)
+                .subscribeBy {
+                    (main_pager.adapter as? ImagePageAdapter)?.let { adapter ->
+                        adapter.primaryItem?.let { item ->
+                            downloader.downloadUri(Uri.parse(item.entry.uri.toString()))
+                        }
+                    }
+                }
 
 //        browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())
 //        browser.hasNext.bindToLifecycle(this).subscribe(next_button.enabled())

@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.scrawlsoft.picslider.base.EntryId
 import com.scrawlsoft.picslider.base.ImageService
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -18,16 +17,17 @@ class ImagePageAdapter(private val context: Context,
     : PagerAdapter() {
 
     inner class ViewHolder(val layout: View,
-                           private val entryId: EntryId,
+                           val entry: ImageService.Entry,
                            var loaded: Boolean = false) {
         fun markViewed(service: ImageService) {
-            service.markAsRead(listOf(entryId))
+            service.markAsRead(listOf(entry.id))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy {}
         }
     }
 
-    private var primaryItem: ViewHolder? = null
+    var primaryItem: ViewHolder? = null
+        private set
 
     var entries: List<ImageService.Entry> = emptyList()
         set(value) {
@@ -45,7 +45,7 @@ class ImagePageAdapter(private val context: Context,
         val view = layout.findViewById<ImageView>(R.id.pager_image)
 
         val entry = entries[position]
-        val viewHolder = ViewHolder(layout, entry.id)
+        val viewHolder = ViewHolder(layout, entry)
         thing.displayIntoView(entry.uri, view, { loadedSuccessfully ->
             if (loadedSuccessfully) {
                 viewHolder.loaded = true

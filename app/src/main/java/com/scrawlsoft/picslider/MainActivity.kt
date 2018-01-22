@@ -37,7 +37,7 @@ import javax.inject.Inject
  */
 class MainActivity : AppCompatActivity() {
 
-    @Inject lateinit var downloader: DownloadMgr
+//    @Inject lateinit var downloader: DownloadMgr
     @Inject lateinit var feedlyService: FeedlyService
     @Inject lateinit var imageDisplay: ImageDisplayAndCache
 
@@ -91,16 +91,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
-        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
-        val prevStream = Observable.merge(volPrev, prev_button.clicks()).map { FOCUS_LEFT }
-        val nextStream = Observable.merge(volNext, next_button.clicks()).map { FOCUS_RIGHT }
-        Observable.merge(prevStream, nextStream)
-                .observeOn(AndroidSchedulers.mainThread())
-                .bindToLifecycle(this)
-                .subscribe { main_pager.arrowScroll(it) }
+//        val volPrev = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_UP }.map { Unit }
+//        val volNext = volumeSubject.filter { it == KeyEvent.KEYCODE_VOLUME_DOWN }.map { Unit }
+//        val prevStream = Observable.merge(volPrev, prev_button.clicks()).map { FOCUS_LEFT }
+//        val nextStream = Observable.merge(volNext, next_button.clicks()).map { FOCUS_RIGHT }
+//        Observable.merge(prevStream, nextStream)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .bindToLifecycle(this)
+//                .subscribe { main_pager.arrowScroll(it) }
 
 
+//        // I THINK I CAN DELETE EVERYTHING THAT FOLLOWS.
 //        browser.hasPrev.bindToLifecycle(this).subscribe(prev_button.enabled())
 //        browser.hasNext.bindToLifecycle(this).subscribe(next_button.enabled())
 //

@@ -1,9 +1,23 @@
 package com.scrawlsoft.picslider.feedly
 
+import com.scrawlsoft.picslider.base.ClientId
+import com.scrawlsoft.picslider.base.ClientSecret
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
 import java.net.URL
+
+//data class FeedlyTokenRequest(val code: String,
+//                              val client_id: ClientId,
+//                              val client_secret: ClientSecret,
+//                              val redirect_uri: String,
+//                              val state: String = "",
+//                              val grant_type: String = "authorization_code")
+data class FeedlyTokenResponse(val id: String,
+                               val refresh_token: String,
+                               val access_token: String,
+                               val token_type: String,
+                               val plan: String)
 
 data class FeedlyApiCategory(val id: String, val label: String, val description: String?)
 data class FeedlyApiEntryIdsResponse(val ids: List<String>, val continuation: String? = null)
@@ -33,6 +47,17 @@ data class FeedlyApiMarkerRequest(val action: String, val type: String, val entr
  *         .create(FeedlyApi::class.java)
  */
 interface FeedlyApi {
+
+    @FormUrlEncoded
+    @POST("/v3/auth/token")
+    fun getToken(@Field("code") code: String,
+                 @Field("client_id") clientId: ClientId,
+                 @Field("client_secret") clientSecret: ClientSecret,
+                 @Field("redirect_uri") redirectUri: String,
+                 @Field("state") state: String = "",
+                 @Field("grant_type") grantType: String = "authorization_code")
+            : Single<FeedlyTokenResponse>
+
     @GET("/v3/categories")
     fun categories(@Header("Authorization") authHeader: String)
             : Single<List<FeedlyApiCategory>>

@@ -7,6 +7,7 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('keys.properties').newDataInputStream())
 def feedlyId = properties.getProperty('feedly.id')
 def feedlyToken = properties.getProperty('feedly.token')
+def feedlyDevToken = properties.getProperty('feedly.dev.token')
 
 def dropboxAppId = properties.getProperty('dropbox.app.key')
 def dropboxAppSecret = properties.getProperty('dropbox.app.secret')
@@ -23,15 +24,21 @@ android {
     }
     buildTypes {
         debug {
-            resValue "string", "feedly_id", feedlyId
-            resValue "string", "feedly_token", feedlyToken
+            resValue "string", "feedly_dev_token", feedlyDevToken
 
-            resValue "string", "dropbox_app_id", dropboxAppId
-            resValue "string", "dropbox_app_secret", dropboxAppSecret
+            resValue "string", "feedly_id", feedlyId  // UNUSED?
+            resValue "string", "feedly_token", feedlyToken  // UNUSED?
+
+            resValue "string", "dropbox_app_id", dropboxAppId  // UNUSED?
+            resValue "string", "dropbox_app_secret", dropboxAppSecret  // UNUSED?
+
+            buildConfigField "boolean", "useFeedlyDevToken", "false"
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "boolean", "useFeedlyDevToken", "false"
         }
     }
 }

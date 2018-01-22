@@ -4,6 +4,7 @@ import com.scrawlsoft.picslider.base.CategoryId
 import com.scrawlsoft.picslider.base.Continuation
 import com.scrawlsoft.picslider.base.EntryId
 import com.scrawlsoft.picslider.base.ImageService
+import com.scrawlsoft.picslider.base.KeyStore
 import io.reactivex.Completable
 import io.reactivex.Single
 import java.net.URL
@@ -15,10 +16,11 @@ import javax.inject.Named
  * All streams returned will be subscribed on Schedulers.io().
  */
 class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
-                                        @Named("feedlyUserToken") private val feedlyUserToken: String)
+                                        private val feedlyKeyStore: KeyStore)
+//                                        @Named("feedlyUserToken") private val feedlyUserToken: String)
     : ImageService {
 
-    private val authHeader by lazy { "OAuth $feedlyUserToken" }
+    private val authHeader by lazy { "OAuth ${feedlyKeyStore.token}" }
 
     override val categories: Single<List<ImageService.Category>> =
             feedlyApi.categories(authHeader)

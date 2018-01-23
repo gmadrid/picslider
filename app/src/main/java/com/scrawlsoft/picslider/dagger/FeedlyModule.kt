@@ -15,8 +15,9 @@ import javax.inject.Singleton
 
 @Module
 class FeedlyModule {
-//    private val defaultBaseUrl = "https://cloud.feedly.com/"
-    private val defaultBaseUrl = "https://sandbox7.feedly.com/"
+    private val defaultBaseUrl =
+            if (BuildConfig.useSandbox) "https://sandbox7.feedly.com/"
+            else "http://cloud,feedly.com/"
 
     @Provides
     fun providesFeedlyKeyStore(resources: Resources): KeyStore =

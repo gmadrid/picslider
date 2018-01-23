@@ -32,13 +32,21 @@ android {
             resValue "string", "dropbox_app_id", dropboxAppId  // UNUSED?
             resValue "string", "dropbox_app_secret", dropboxAppSecret  // UNUSED?
 
+            // Set this to true to use the devtoken. This completely skips the whole OAuth2
+            // authentication protocol, and just uses a cached token from keys.properties.
             buildConfigField "boolean", "useFeedlyDevToken", "false"
+
+            // Set this to true to use the Feedly sandbox instead of the prod servers.
+            // This is essential until you get a real clientSecret from Feedly.
+            // This only has an effect if useFeedlyDevToken is false.
+            buildConfigField "boolean", "useSandbox", "true"
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             buildConfigField "boolean", "useFeedlyDevToken", "false"
+            buildConfigField "boolean", "useSandbox", "false"
         }
     }
 }

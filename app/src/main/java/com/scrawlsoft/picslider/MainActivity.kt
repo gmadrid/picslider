@@ -4,15 +4,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
-import android.view.View.FOCUS_LEFT
-import android.view.View.FOCUS_RIGHT
 import com.jakewharton.rxbinding2.view.clicks
 import com.scrawlsoft.picslider.feedly.FeedlyService
 import com.scrawlsoft.picslider.images.DownloadMgr
 import com.scrawlsoft.picslider.images.ImageDisplayAndCache
 import com.scrawlsoft.picslider.utils.longToast
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.PublishSubject
@@ -37,7 +34,8 @@ import javax.inject.Inject
  */
 class MainActivity : AppCompatActivity() {
 
-//    @Inject lateinit var downloader: DownloadMgr
+    @Inject
+    lateinit var downloader: DownloadMgr
     @Inject lateinit var feedlyService: FeedlyService
     @Inject lateinit var imageDisplay: ImageDisplayAndCache
 

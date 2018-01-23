@@ -5,8 +5,10 @@ apply plugin: 'kotlin-kapt'
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('keys.properties').newDataInputStream())
-def feedlyId = properties.getProperty('feedly.id')
-def feedlyToken = properties.getProperty('feedly.token')
+
+def feedlySandboxClient = properties.getProperty('feedly.sandbox.client')
+def feedlySandboxSecret = properties.getProperty('feedly.sandbox.secret')
+
 def feedlyDevToken = properties.getProperty('feedly.dev.token')
 
 def dropboxAppId = properties.getProperty('dropbox.app.key')
@@ -26,15 +28,15 @@ android {
         debug {
             resValue "string", "feedly_dev_token", feedlyDevToken
 
-            resValue "string", "feedly_id", feedlyId  // UNUSED?
-            resValue "string", "feedly_token", feedlyToken  // UNUSED?
+            resValue "string", "feedly_sandbox_client", feedlySandboxClient
+            resValue "string", "feedly_sandbox_secret", feedlySandboxSecret
 
             resValue "string", "dropbox_app_id", dropboxAppId  // UNUSED?
             resValue "string", "dropbox_app_secret", dropboxAppSecret  // UNUSED?
 
             // Set this to true to use the devtoken. This completely skips the whole OAuth2
             // authentication protocol, and just uses a cached token from keys.properties.
-            buildConfigField "boolean", "useFeedlyDevToken", "false"
+            buildConfigField "boolean", "useFeedlyDevToken", "true"
 
             // Set this to true to use the Feedly sandbox instead of the prod servers.
             // This is essential until you get a real clientSecret from Feedly.

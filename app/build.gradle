@@ -7,6 +7,7 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('keys.properties').newDataInputStream())
 def feedlyId = properties.getProperty('feedly.id')
 def feedlyToken = properties.getProperty('feedly.token')
+def feedlyDevToken = properties.getProperty('feedly.dev.token')
 
 def dropboxAppId = properties.getProperty('dropbox.app.key')
 def dropboxAppSecret = properties.getProperty('dropbox.app.secret')
@@ -23,15 +24,29 @@ android {
     }
     buildTypes {
         debug {
-            resValue "string", "feedly_id", feedlyId
-            resValue "string", "feedly_token", feedlyToken
+            resValue "string", "feedly_dev_token", feedlyDevToken
 
-            resValue "string", "dropbox_app_id", dropboxAppId
-            resValue "string", "dropbox_app_secret", dropboxAppSecret
+            resValue "string", "feedly_id", feedlyId  // UNUSED?
+            resValue "string", "feedly_token", feedlyToken  // UNUSED?
+
+            resValue "string", "dropbox_app_id", dropboxAppId  // UNUSED?
+            resValue "string", "dropbox_app_secret", dropboxAppSecret  // UNUSED?
+
+            // Set this to true to use the devtoken. This completely skips the whole OAuth2
+            // authentication protocol, and just uses a cached token from keys.properties.
+            buildConfigField "boolean", "useFeedlyDevToken", "false"
+
+            // Set this to true to use the Feedly sandbox instead of the prod servers.
+            // This is essential until you get a real clientSecret from Feedly.
+            // This only has an effect if useFeedlyDevToken is false.
+            buildConfigField "boolean", "useSandbox", "true"
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "boolean", "useFeedlyDevToken", "false"
+            buildConfigField "boolean", "useSandbox", "false"
         }
     }
 }

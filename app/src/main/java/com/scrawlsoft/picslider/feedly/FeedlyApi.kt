@@ -7,12 +7,6 @@ import io.reactivex.Single
 import retrofit2.http.*
 import java.net.URL
 
-//data class FeedlyTokenRequest(val code: String,
-//                              val client_id: ClientId,
-//                              val client_secret: ClientSecret,
-//                              val redirect_uri: String,
-//                              val state: String = "",
-//                              val grant_type: String = "authorization_code")
 data class FeedlyTokenResponse(val id: String,
                                val refresh_token: String,
                                val access_token: String,
@@ -21,7 +15,6 @@ data class FeedlyTokenResponse(val id: String,
 
 data class FeedlyApiCategory(val id: String, val label: String, val description: String?)
 data class FeedlyApiEntryIdsResponse(val ids: List<String>, val continuation: String? = null)
-data class FeedlyApiEntry(val id: String, val uri: URL)
 
 data class FeedlyApiJSONEntry(
         val id: String,

@@ -1,15 +1,10 @@
 package com.scrawlsoft.picslider.feedly
 
-import com.scrawlsoft.picslider.base.CategoryId
-import com.scrawlsoft.picslider.base.Continuation
-import com.scrawlsoft.picslider.base.EntryId
-import com.scrawlsoft.picslider.base.ImageService
-import com.scrawlsoft.picslider.base.KeyStore
+import com.scrawlsoft.picslider.base.*
 import io.reactivex.Completable
 import io.reactivex.Single
 import java.net.URL
 import javax.inject.Inject
-import javax.inject.Named
 
 /**
  * An ImageService for the FeedlyApi.

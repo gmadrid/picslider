@@ -36,7 +36,7 @@ android {
 
             // Set this to true to use the devtoken. This completely skips the whole OAuth2
             // authentication protocol, and just uses a cached token from keys.properties.
-            buildConfigField "boolean", "useFeedlyDevToken", "true"
+            buildConfigField "boolean", "useFeedlyDevToken", "false"
 
             // Set this to true to use the Feedly sandbox instead of the prod servers.
             // This is essential until you get a real clientSecret from Feedly.

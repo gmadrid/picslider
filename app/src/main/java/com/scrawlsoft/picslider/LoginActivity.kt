@@ -5,6 +5,7 @@ import android.content.Intent.ACTION_VIEW
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.jakewharton.rxbinding2.view.clicks
+import com.scrawlsoft.picslider.base.KeyStore
 import com.scrawlsoft.picslider.base.OAuth2Info
 import com.scrawlsoft.picslider.feedly.FeedlyApi
 import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
@@ -18,6 +19,9 @@ class LoginActivity : AppCompatActivity() {
 
     @Inject
     lateinit var feedlyApi: FeedlyApi
+
+    @Inject
+    lateinit var feedlyKeyStore: KeyStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,20 +49,17 @@ class LoginActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        intent.data?.let {
-            if (it.host.contains("localhost")) {
-                val code = it.getQueryParameter("code")
+        intent.data?.let { redirectUrl ->
+            if (redirectUrl.host.contains("localhost")) {
+                val code = redirectUrl.getQueryParameter("code")
                 if (code == null) {
                     TODO("Deal with error situation here")
                 } else {
                     feedlyApi.getToken(code,
                             oAuthInfo.clientId, oAuthInfo.clientSecret, oAuthInfo.redirectUri.toString())
-                            .flatMap { result ->
-                                println("AT: ${result.access_token}")
-                                feedlyApi.categories("OAuth ${result.access_token}")
-                            }
-                            .subscribeBy {
-                                println("FOO: $it")
+                            .subscribeBy { result ->
+                                feedlyKeyStore.token = result.access_token
+                                startActivity(Intent(this, DispatchActivity::class.java))
                             }
                 }
             }

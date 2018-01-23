@@ -12,7 +12,6 @@ import javax.inject.Inject
  */
 class FeedlyService @Inject constructor(private val feedlyApi: FeedlyApi,
                                         private val feedlyKeyStore: KeyStore)
-//                                        @Named("feedlyUserToken") private val feedlyUserToken: String)
     : ImageService {
 
     private val authHeader by lazy { "OAuth ${feedlyKeyStore.token}" }

@@ -21,6 +21,7 @@ class FeedlyModule {
             else "http://cloud.feedly.com/"
 
     @Provides
+    @Singleton
     fun providesFeedlyKeyStore(resources: Resources): KeyStore =
             FeedlyKeyStore.getInstance(resources)
 
@@ -38,7 +39,7 @@ class FeedlyModule {
         OAuth2Info(Uri.parse("https://sandbox7.feedly.com/v3/auth/auth"),
                 clientId,
                 clientSecret,
-                Uri.parse("http://localhost:8080"))
+                Uri.parse("http://localhost:8080/"))
     } else {
         throw IllegalStateException("No OAuth2 info for release build yet.")
     }
